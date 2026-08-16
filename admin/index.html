@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админка — Гоголь барбершоп</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Цвета */
+  --color-primary-ink: #1d1d1f;
+  --color-mid-gray: #707070;
+  --color-deep-gray: #474747;
+  --color-hairline: #d6d6d6;
+  --color-canvas: #f5f5f7;
+  --color-paper: #ffffff;
+  --color-cool-wash: #e8e8ed;
+  --color-faded-surface: #fafafc;
+  --color-quiet-dot: #777779;
+  --color-electric-blue: #0071e3;
+  --color-link-blue: #0066cc;
+  --color-ember: #b64400;
+
+  /* Шрифты */
+  --font-display: 'SF Pro Display', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-text: 'SF Pro Text', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Шкала */
+  --text-micro: 12px;
+  --text-caption: 14px;
+  --text-body-sm: 17px;
+  --text-body: 21px;
+  --text-body-lg: 28px;
+  --text-subheading: 32px;
+  --text-heading-sm: 40px;
+  --text-heading: 56px;
+
+  /* Отступы */
+  --spacing-4: 4px;   --spacing-8: 8px;   --spacing-12: 12px; --spacing-16: 16px;
+  --spacing-20: 20px; --spacing-24: 24px; --spacing-28: 28px; --spacing-32: 32px;
+  --spacing-40: 40px; --spacing-48: 48px; --spacing-80: 80px; --spacing-120: 120px;
+
+  /* Скругления */
+  --radius-links: 10px;
+  --radius-input: 12px;
+  --radius-cards: 28px;
+  --radius-buttons: 980px;
+  --radius-smallbuttons: 999px;
+
+  --page-max-width: 1200px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-primary-ink);
+  font-family: var(--font-text);
+  font-size: var(--text-body-sm);
+  line-height: 25px;
+  letter-spacing: -0.022em;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- навигация */
+
+.globalnav {
+  position: sticky; top: 0; z-index: 40; height: 44px;
+  background: rgba(250,250,252,0.86); backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--color-hairline);
+}
+.globalnav-inner {
+  max-width: var(--page-max-width); height: 100%; margin: 0 auto;
+  padding: 0 var(--spacing-40); display: flex; align-items: center; gap: var(--spacing-20);
+}
+.wordmark { font-family: var(--font-display); font-size: var(--text-caption); font-weight: 600; letter-spacing: -0.01em; }
+.globalnav .spacer { flex: 1; }
+.navlink {
+  font-size: var(--text-micro); font-weight: 400; line-height: 16px; letter-spacing: -0.12px;
+  color: var(--color-primary-ink); text-decoration: none; background: none; border: 0;
+  padding: 0; cursor: pointer; font-family: inherit;
+}
+.navlink:hover { color: var(--color-mid-gray); }
+.navlink.quiet { color: var(--color-deep-gray); }
+.globalnav form { margin: 0; display: flex; }
+
+/* локальная навигация — как на продуктовых страницах: имя слева, разделы, CTA справа */
+.localnav {
+  position: sticky; top: 44px; z-index: 39;
+  background: rgba(255,255,255,0.86); backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--color-hairline);
+}
+.localnav-inner {
+  max-width: var(--page-max-width); min-height: 52px; margin: 0 auto;
+  padding: var(--spacing-8) var(--spacing-40);
+  display: flex; align-items: center; gap: var(--spacing-24); flex-wrap: wrap;
+}
+.localnav-title {
+  font-family: var(--font-display); font-size: var(--text-body-sm); font-weight: 600;
+  letter-spacing: -0.01em; white-space: nowrap;
+}
+.tabs { display: flex; align-items: center; gap: var(--spacing-8); flex: 1; flex-wrap: wrap; }
+.tabs button {
+  font-family: inherit; font-size: var(--text-caption); line-height: 18px; letter-spacing: -0.224px;
+  color: var(--color-mid-gray); background: transparent; border: 0; cursor: pointer;
+  padding: var(--spacing-8) var(--spacing-16); border-radius: var(--radius-smallbuttons);
+}
+.tabs button:hover { color: var(--color-primary-ink); background: var(--color-cool-wash); }
+.tabs button.on { color: var(--color-paper); background: var(--color-primary-ink); }
+.localnav-actions { display: flex; align-items: center; gap: var(--spacing-16); }
+.status { font-size: var(--text-micro); line-height: 16px; color: var(--color-ember); font-weight: 500; }
+.status.hidden { visibility: hidden; }
+
+/* ---------------------------------------------------------------- кнопки */
+
+.btn-filled {
+  font-family: inherit; font-size: var(--text-body-sm); font-weight: 400; letter-spacing: -0.022em;
+  background: var(--color-electric-blue); color: var(--color-paper); border: 0;
+  border-radius: var(--radius-buttons); padding: 11px 22px; cursor: pointer; white-space: nowrap;
+}
+.btn-filled:hover { background: #0077ed; }
+.btn-filled:disabled { opacity: 0.42; cursor: default; }
+
+.btn-ghost {
+  font-family: inherit; font-size: var(--text-body-sm); font-weight: 400; letter-spacing: -0.022em;
+  background: transparent; color: var(--color-primary-ink);
+  border: 1px solid var(--color-primary-ink); border-radius: var(--radius-smallbuttons);
+  padding: 10px 20px; cursor: pointer; text-decoration: none; display: inline-block; white-space: nowrap;
+}
+.btn-ghost:hover { background: var(--color-primary-ink); color: var(--color-paper); }
+
+.arrow-link {
+  color: var(--color-link-blue); text-decoration: none; font-size: var(--text-body-sm);
+  border-radius: var(--radius-links);
+}
+.arrow-link:hover { text-decoration: underline; }
+
+/* круглые кнопки порядка и удаления */
+.mini {
+  width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center;
+  font-family: inherit; font-size: var(--text-caption); color: var(--color-mid-gray);
+  background: var(--color-canvas); border: 0; border-radius: var(--radius-smallbuttons); cursor: pointer;
+}
+.mini:hover:not(:disabled) { background: var(--color-cool-wash); color: var(--color-primary-ink); }
+.mini:disabled { opacity: 0.3; cursor: default; }
+.row-tools { display: flex; gap: var(--spacing-4); flex: none; }
+
+.add-btn {
+  font-family: inherit; font-size: var(--text-body-sm); color: var(--color-link-blue);
+  background: transparent; border: 0; padding: var(--spacing-12) 0 0; cursor: pointer;
+}
+.add-btn:hover { text-decoration: underline; }
+
+/* ---------------------------------------------------------------- полосы и заголовки */
+
+.band { padding: var(--spacing-80) var(--spacing-40); }
+.band-white { background: var(--color-paper); padding-bottom: var(--spacing-40); }
+.band-canvas { background: var(--color-canvas); padding-top: var(--spacing-48); padding-bottom: var(--spacing-120); }
+.band-inner { max-width: var(--page-max-width); margin: 0 auto; }
+
+.eyebrow { margin: 0 0 var(--spacing-12); font-size: var(--text-body-sm); color: var(--color-mid-gray); }
+h1.display {
+  margin: 0; font-family: var(--font-display); font-size: var(--text-heading);
+  line-height: 60px; letter-spacing: -0.28px; font-weight: 600;
+}
+.lede {
+  margin: var(--spacing-20) 0 0; max-width: 640px;
+  font-size: var(--text-body); line-height: 29px; letter-spacing: 0.231px; color: var(--color-mid-gray);
+}
+
+h2.section {
+  margin: 0 0 var(--spacing-24); font-family: var(--font-display);
+  font-size: var(--text-body-lg); line-height: 32px; letter-spacing: 0.007em; font-weight: 600;
+}
+h2.section.spaced { margin-top: var(--spacing-80); }
+
+/* ---------------------------------------------------------------- карточки и поля */
+
+.card {
+  background: var(--color-paper); border-radius: var(--radius-cards);
+  padding: var(--spacing-28); margin-bottom: var(--spacing-20);
+}
+.card-head { display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-24); }
+.card-head .grow { flex: 1; min-width: 0; }
+.badge {
+  font-family: var(--font-display); font-size: var(--text-body-lg); font-weight: 600;
+  letter-spacing: 0.196px; white-space: nowrap;
+}
+.card-title {
+  font-family: var(--font-display); font-size: var(--text-body); font-weight: 600;
+  letter-spacing: 0.011em; line-height: 29px;
+}
+
+label {
+  display: block; font-size: var(--text-caption); line-height: 18px; letter-spacing: -0.224px;
+  color: var(--color-mid-gray); margin-bottom: var(--spacing-8);
+}
+input[type=text], textarea {
+  width: 100%; font-family: inherit; font-size: var(--text-body-sm); line-height: 25px;
+  letter-spacing: -0.022em; color: var(--color-primary-ink); background: var(--color-canvas);
+  border: 1px solid transparent; border-radius: var(--radius-input);
+  padding: 10px var(--spacing-16); outline: none; font-variant-numeric: tabular-nums;
+}
+input[type=text]::placeholder, textarea::placeholder { color: var(--color-quiet-dot); }
+input[type=text]:hover, textarea:hover { background: var(--color-cool-wash); }
+input[type=text]:focus, textarea:focus {
+  background: var(--color-paper); border-color: var(--color-primary-ink);
+}
+textarea { resize: vertical; min-height: 84px; }
+.field { margin-bottom: var(--spacing-16); }
+.grid { display: grid; gap: var(--spacing-16); }
+.toggle { display: flex; align-items: center; gap: var(--spacing-12); font-size: var(--text-body-sm); color: var(--color-primary-ink); cursor: pointer; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--color-electric-blue); cursor: pointer; flex: none; }
+.toggle span { color: inherit; }
+
+/* ---------------------------------------------------------------- фото */
+
+.photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-20); }
+.photo-preview {
+  width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block;
+  background: var(--color-canvas); border-radius: var(--radius-cards); margin-bottom: var(--spacing-20);
+}
+.photo-title {
+  font-family: var(--font-display); font-size: var(--text-body); font-weight: 600;
+  letter-spacing: 0.011em; margin-bottom: var(--spacing-16);
+}
+.photo-btns { display: flex; gap: var(--spacing-8); margin-top: var(--spacing-16); }
+.photo-btns button { flex: 1; padding-left: 0; padding-right: 0; }
+
+/* ---------------------------------------------------------------- строки прайса */
+
+.rows { display: flex; flex-direction: column; gap: var(--spacing-8); }
+.row { display: flex; align-items: center; gap: var(--spacing-8); }
+.row .name { flex: 1; min-width: 0; }
+.row .price { width: 140px; flex: none; }
+.col-note { font-size: var(--text-micro); line-height: 16px; color: var(--color-mid-gray); white-space: nowrap; }
+.empty { color: var(--color-mid-gray); padding: var(--spacing-8) 0; }
+.note { margin: calc(var(--spacing-8) * -1) 0 var(--spacing-20); font-size: var(--text-caption); line-height: 18px; color: var(--color-mid-gray); }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--text-caption); color: var(--color-deep-gray); }
+
+/* ---------------------------------------------------------------- модалка и тост */
+
+.modal {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  padding: var(--spacing-24); background: rgba(0,0,0,0.42); backdrop-filter: blur(20px);
+}
+.modal-box {
+  width: min(100%, 980px); max-height: 84vh; overflow: auto;
+  background: var(--color-paper); border-radius: var(--radius-cards); padding: var(--spacing-40);
+}
+.lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: var(--spacing-20); margin-top: var(--spacing-24); }
+.lib figure { margin: 0; }
+.lib img {
+  width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+  border-radius: var(--radius-cards); background: var(--color-canvas); cursor: pointer;
+}
+.lib figcaption { display: flex; align-items: center; gap: var(--spacing-8); padding-top: var(--spacing-8); font-size: var(--text-caption); color: var(--color-mid-gray); }
+.lib figcaption span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.toast {
+  position: fixed; left: 50%; bottom: var(--spacing-40); z-index: 80;
+  padding: 12px var(--spacing-24); border-radius: var(--radius-smallbuttons);
+  background: var(--color-primary-ink); color: var(--color-paper); font-size: var(--text-body-sm);
+  transform: translate(-50%, 90px); opacity: 0; transition: transform .3s ease, opacity .3s ease;
+}
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+.toast.bad { background: var(--color-ember); }
+
+.hidden { display: none !important; }
+
+@media (max-width: 734px) {
+  .band { padding-left: var(--spacing-24); padding-right: var(--spacing-24); }
+  .globalnav-inner, .localnav-inner { padding-left: var(--spacing-24); padding-right: var(--spacing-24); }
+  h1.display { font-size: var(--text-heading-sm); line-height: 48px; letter-spacing: -0.2px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="globalnav">
+  <div class="globalnav-inner">
+    <span class="wordmark">Гоголь</span>
+    <span class="navlink quiet">Барбершоп</span>
+    <span class="spacer"></span>
+    <a class="navlink" href="/" target="_blank" rel="noopener">Сайт&nbsp;›</a>
+    <form method="post" action="/admin/logout"><button class="navlink" type="submit">Выйти</button></form>
+  </div>
+</nav>
+
+<div class="localnav">
+  <div class="localnav-inner">
+    <span class="localnav-title">Админка</span>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="localnav-actions">
+      <span class="status hidden" id="status">Не сохранено</span>
+      <button class="btn-filled" id="save" disabled>Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<section class="band band-white">
+  <div class="band-inner">
+    <p class="eyebrow" id="eyebrow">Гоголь барбершоп</p>
+    <h1 class="display" id="heading">Загрузка…</h1>
+    <p class="lede" id="lede"></p>
+  </div>
+</section>
+
+<section class="band band-canvas">
+  <div class="band-inner" id="view"></div>
+</section>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <div class="card-head">
+      <h2 class="section grow" style="margin:0">Библиотека фото</h2>
+      <button class="btn-ghost" data-act="lib-close">Закрыть</button>
+    </div>
+    <p class="lede" style="font-size:var(--text-body-sm);line-height:25px;letter-spacing:-0.022em;margin:0">
+      Клик по снимку ставит его в выбранный слот.
+    </p>
+    <div class="lib" id="lib"></div>
+  </div>
+</div>
+
+<input type="file" id="picker" accept="image/*" class="hidden">
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const TABS = [
+  { id: 'photos',    nav: 'Фото',        title: 'Фото.',        lede: 'Девять слотов на странице. Загрузи файл, выбери снимок из библиотеки или вставь прямую ссылку — превью обновится сразу.' },
+  { id: 'services',  nav: 'Услуги',      title: 'Услуги.',      lede: 'Карточки в блоке услуг и тёмная плашка комплекса под ними. Цена пишется как есть — например «от 40 BYN».' },
+  { id: 'prices',    nav: 'Прейскурант', title: 'Прейскурант.', lede: 'Группы и строки прайса. Видимые группы делятся пополам: первая половина уходит в левую колонку, вторая — в правую.' },
+  { id: 'cosmetics', nav: 'Косметика',   title: 'Косметика.',   lede: 'Бренды и позиции, которые стоят на полке у стойки. Всю секцию можно скрыть в настройках.' },
+  { id: 'settings',  nav: 'Настройки',   title: 'Настройки.',   lede: 'Ссылка записи и видимость секций сайта.' },
+];
+
+const state = { content: null, slots: [], csrf: '', tab: 'photos', dirty: false, slotForUpload: null };
+
+const $ = (sel) => document.querySelector(sel);
+const view = $('#view');
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ------------------------------------------------------------------ доступ к данным по пути */
+
+function setPath(obj, path, value) {
+  const keys = path.split('.');
+  const last = keys.pop();
+  const target = keys.reduce((acc, k) => acc[k], obj);
+  target[last] = value;
+}
+
+/* ------------------------------------------------------------------ сеть */
+
+async function api(url, options = {}) {
+  const opts = { credentials: 'same-origin', ...options, headers: { 'X-CSRF-Token': state.csrf, ...(options.headers || {}) } };
+  const res = await fetch(url, opts);
+  if (res.status === 401) { location.href = '/admin/login'; throw new Error('unauthorized'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Ошибка ${res.status}`);
+  return data;
+}
+
+async function load() {
+  const data = await api('/api/content');
+  state.content = data.content;
+  state.slots = data.photoSlots;
+  state.csrf = data.csrf;
+  render();
+}
+
+async function save() {
+  const btn = $('#save');
+  btn.disabled = true;
+  try {
+    const data = await api('/api/content', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.content),
+    });
+    state.content = data.content;
+    setDirty(false);
+    toast('Сохранено');
+    render();
+  } catch (err) {
+    toast(err.message, true);
+    btn.disabled = false;
+  }
+}
+
+/* ------------------------------------------------------------------ мелочи UI */
+
+function setDirty(value) {
+  state.dirty = value;
+  $('#save').disabled = !value;
+  $('#status').classList.toggle('hidden', !value);
+}
+
+let toastTimer = 0;
+function toast(message, bad = false) {
+  const node = $('#toast');
+  node.textContent = message;
+  node.className = 'toast show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { node.className = 'toast'; }, 3200);
+}
+
+function move(list, index, delta) {
+  const to = index + delta;
+  if (to < 0 || to >= list.length) return;
+  [list[index], list[to]] = [list[to], list[index]];
+}
+
+const tools = (act, i, len) => `
+  <div class="row-tools">
+    <button class="mini" data-act="${act}-up" data-i="${i}" ${i === 0 ? 'disabled' : ''} title="Выше">↑</button>
+    <button class="mini" data-act="${act}-down" data-i="${i}" ${i === len - 1 ? 'disabled' : ''} title="Ниже">↓</button>
+    <button class="mini" data-act="${act}-del" data-i="${i}" title="Удалить">✕</button>
+  </div>`;
+
+const field = (label, path, value, type = 'text') => `
+  <div class="field">
+    <label>${label}</label>
+    ${type === 'textarea'
+      ? `<textarea data-path="${path}">${esc(value)}</textarea>`
+      : `<input type="text" data-path="${path}" value="${esc(value)}">`}
+  </div>`;
+
+/* ------------------------------------------------------------------ отрисовка */
+
+function render() {
+  const tab = TABS.find((t) => t.id === state.tab);
+  $('#tabs').innerHTML = TABS.map((t) =>
+    `<button data-tab="${t.id}" class="${state.tab === t.id ? 'on' : ''}">${t.nav}</button>`).join('');
+  $('#heading').textContent = tab.title;
+  $('#lede').textContent = tab.lede;
+
+  const c = state.content;
+  if (!c) return;
+  view.innerHTML = ({
+    photos: viewPhotos,
+    services: viewServices,
+    prices: viewPrices,
+    cosmetics: viewCosmetics,
+    settings: viewSettings,
+  })[state.tab](c);
+}
+
+function viewPhotos(c) {
+  return `
+    <div class="photos">
+      ${state.slots.map(({ slot, label }) => `
+        <div class="card">
+          <img class="photo-preview" data-preview="${slot}" src="${esc(c.photos[slot] || '')}" alt="" onerror="this.style.opacity=0.3">
+          <div class="photo-title">${esc(label)}</div>
+          <div class="field" style="margin:0">
+            <label>Ссылка</label>
+            <input type="text" data-path="photos.${slot}" data-photo="${slot}" value="${esc(c.photos[slot] || '')}">
+          </div>
+          <div class="photo-btns">
+            <button class="btn-ghost" data-act="upload" data-slot="${slot}">Загрузить</button>
+            <button class="btn-ghost" data-act="lib-open" data-slot="${slot}">Библиотека</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function viewServices(c) {
+  return `
+    ${c.services.map((svc, i) => `
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">${esc(svc.num || '№')}</span>
+          <span class="grow"></span>
+          ${tools('svc', i, c.services.length)}
+        </div>
+        <div class="grid" style="grid-template-columns: 120px 1fr 200px">
+          ${field('Номер', `services.${i}.num`, svc.num)}
+          ${field('Название', `services.${i}.title`, svc.title)}
+          ${field('Цена', `services.${i}.price`, svc.price)}
+        </div>
+        ${field('Описание', `services.${i}.desc`, svc.desc, 'textarea')}
+        ${field('Подпись под описанием', `services.${i}.tags`, svc.tags)}
+      </div>`).join('')}
+    <button class="add-btn" data-act="svc-add">Добавить услугу</button>
+
+    <h2 class="section spaced">Комплекс</h2>
+    <div class="card">
+      <div class="grid" style="grid-template-columns: 1fr 1fr 200px">
+        ${field('Надпись сверху', 'combo.kicker', c.combo.kicker)}
+        ${field('Название', 'combo.title', c.combo.title)}
+        ${field('Цена', 'combo.price', c.combo.price)}
+      </div>
+    </div>`;
+}
+
+function viewPrices(c) {
+  const half = Math.ceil(c.priceGroups.filter((g) => g.visible !== false).length / 2);
+  let shown = 0;
+  return `
+    ${c.priceGroups.map((g, i) => {
+      const col = g.visible === false ? 'скрыта' : (shown++ < half ? 'левая колонка' : 'правая колонка');
+      return `
+      <div class="card">
+        <div class="card-head">
+          <input type="text" class="grow" data-path="priceGroups.${i}.title" value="${esc(g.title)}" placeholder="Название группы">
+          <span class="col-note">${col}</span>
+          <label class="toggle"><input type="checkbox" data-path="priceGroups.${i}.visible" ${g.visible !== false ? 'checked' : ''}><span>показывать</span></label>
+          ${tools('pg', i, c.priceGroups.length)}
+        </div>
+        <div class="rows">
+          ${g.rows.length ? g.rows.map((row, r) => `
+            <div class="row">
+              <input class="name" type="text" data-path="priceGroups.${i}.rows.${r}.name" value="${esc(row.name)}" placeholder="Услуга">
+              <input class="price" type="text" data-path="priceGroups.${i}.rows.${r}.price" value="${esc(row.price)}" placeholder="0 BYN">
+              <div class="row-tools">
+                <button class="mini" data-act="row-up" data-i="${i}" data-j="${r}" ${r === 0 ? 'disabled' : ''} title="Выше">↑</button>
+                <button class="mini" data-act="row-down" data-i="${i}" data-j="${r}" ${r === g.rows.length - 1 ? 'disabled' : ''} title="Ниже">↓</button>
+                <button class="mini" data-act="row-del" data-i="${i}" data-j="${r}" title="Удалить">✕</button>
+              </div>
+            </div>`).join('') : '<p class="empty">Пока нет строк</p>'}
+        </div>
+        <button class="add-btn" data-act="row-add" data-i="${i}">Добавить строку</button>
+      </div>`;
+    }).join('')}
+    <button class="add-btn" data-act="pg-add">Добавить группу</button>`;
+}
+
+function viewCosmetics(c) {
+  return `
+    ${c.brands.map((b, i) => `
+      <div class="card">
+        <div class="card-head">
+          <input type="text" class="grow" data-path="brands.${i}.name" value="${esc(b.name)}" placeholder="Бренд">
+          <input type="text" style="width:260px;flex:none" data-path="brands.${i}.tagline" value="${esc(b.tagline)}" placeholder="подпись курсивом">
+          ${tools('br', i, c.brands.length)}
+        </div>
+        <div class="rows">
+          ${b.items.length ? b.items.map((item, j) => `
+            <div class="row">
+              <input class="name" type="text" data-path="brands.${i}.items.${j}.name" value="${esc(item.name)}" placeholder="Название">
+              <input class="name" type="text" data-path="brands.${i}.items.${j}.note" value="${esc(item.note)}" placeholder="Описание">
+              <div class="row-tools">
+                <button class="mini" data-act="item-up" data-i="${i}" data-j="${j}" ${j === 0 ? 'disabled' : ''} title="Выше">↑</button>
+                <button class="mini" data-act="item-down" data-i="${i}" data-j="${j}" ${j === b.items.length - 1 ? 'disabled' : ''} title="Ниже">↓</button>
+                <button class="mini" data-act="item-del" data-i="${i}" data-j="${j}" title="Удалить">✕</button>
+              </div>
+            </div>`).join('') : '<p class="empty">Пока нет позиций</p>'}
+        </div>
+        <button class="add-btn" data-act="item-add" data-i="${i}">Добавить позицию</button>
+      </div>`).join('')}
+    <button class="add-btn" data-act="br-add">Добавить бренд</button>`;
+}
+
+function viewSettings(c) {
+  return `
+    <div class="card">
+      ${field('Ссылка для записи', 'booking.url', c.booking.url)}
+      <p class="note">Телефон — <code>tel:+375292137271</code>, онлайн-запись — обычный адрес вида <code>https://…</code>.</p>
+      <label class="toggle">
+        <input type="checkbox" data-path="sections.showCosmetics" ${c.sections.showCosmetics ? 'checked' : ''}>
+        <span>Показывать секцию «Косметика»</span>
+      </label>
+    </div>`;
+}
+
+/* ------------------------------------------------------------------ события */
+
+document.addEventListener('input', (e) => {
+  const node = e.target.closest('[data-path]');
+  if (!node) return;
+  const value = node.type === 'checkbox' ? node.checked : node.value;
+  setPath(state.content, node.dataset.path, value);
+  setDirty(true);
+
+  if (node.dataset.photo) {
+    const preview = document.querySelector(`[data-preview="${node.dataset.photo}"]`);
+    if (preview) { preview.src = node.value; preview.style.opacity = 1; }
+  }
+  // Скрытие группы меняет раскладку по колонкам — перерисовываем подписи.
+  if (state.tab === 'prices' && node.dataset.path.endsWith('.visible')) render();
+});
+
+$('#tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-tab]');
+  if (!btn) return;
+  state.tab = btn.dataset.tab;
+  render();
+  window.scrollTo({ top: 0 });
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const c = state.content;
+  const i = Number(btn.dataset.i);
+  const j = Number(btn.dataset.j);
+  const act = btn.dataset.act;
+
+  const handlers = {
+    'svc-add':  () => c.services.push({ num: `№ ${c.services.length + 1}`, title: '', price: '', desc: '', tags: '' }),
+    'svc-del':  () => c.services.splice(i, 1),
+    'svc-up':   () => move(c.services, i, -1),
+    'svc-down': () => move(c.services, i, 1),
+
+    'pg-add':   () => c.priceGroups.push({ title: 'Новая группа', visible: true, rows: [] }),
+    'pg-del':   () => c.priceGroups.splice(i, 1),
+    'pg-up':    () => move(c.priceGroups, i, -1),
+    'pg-down':  () => move(c.priceGroups, i, 1),
+    'row-add':  () => c.priceGroups[i].rows.push({ name: '', price: '' }),
+    'row-del':  () => c.priceGroups[i].rows.splice(j, 1),
+    'row-up':   () => move(c.priceGroups[i].rows, j, -1),
+    'row-down': () => move(c.priceGroups[i].rows, j, 1),
+
+    'br-add':    () => c.brands.push({ name: 'Новый бренд', tagline: '', items: [] }),
+    'br-del':    () => c.brands.splice(i, 1),
+    'br-up':     () => move(c.brands, i, -1),
+    'br-down':   () => move(c.brands, i, 1),
+    'item-add':  () => c.brands[i].items.push({ name: '', note: '' }),
+    'item-del':  () => c.brands[i].items.splice(j, 1),
+    'item-up':   () => move(c.brands[i].items, j, -1),
+    'item-down': () => move(c.brands[i].items, j, 1),
+  };
+
+  if (handlers[act]) {
+    if (act.endsWith('-del') && !confirm('Удалить?')) return;
+    handlers[act]();
+    setDirty(true);
+    render();
+    return;
+  }
+
+  if (act === 'upload')    { state.slotForUpload = btn.dataset.slot; $('#picker').click(); }
+  if (act === 'lib-open')  { state.slotForUpload = btn.dataset.slot; openLibrary(); }
+  if (act === 'lib-close') { $('#modal').classList.add('hidden'); }
+  if (act === 'media-del') { deleteMedia(btn.dataset.file); }
+  if (act === 'media-pick') {
+    state.content.photos[state.slotForUpload] = btn.dataset.url;
+    $('#modal').classList.add('hidden');
+    setDirty(true);
+    render();
+  }
+});
+
+$('#save').addEventListener('click', save);
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    if (state.dirty) save();
+  }
+  if (e.key === 'Escape') $('#modal').classList.add('hidden');
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+/* ------------------------------------------------------------------ библиотека фото */
+
+$('#picker').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const body = new FormData();
+  body.append('file', file);
+  try {
+    toast('Загружаю…');
+    const data = await api('/api/media', { method: 'POST', body });
+    state.content.photos[state.slotForUpload] = data.url;
+    setDirty(true);
+    render();
+    toast('Файл загружен — не забудь сохранить');
+  } catch (err) {
+    toast(err.message, true);
+  }
+});
+
+async function openLibrary() {
+  const modal = $('#modal');
+  modal.classList.remove('hidden');
+  const lib = $('#lib');
+  lib.innerHTML = '<p class="empty">Загрузка…</p>';
+  try {
+    const { files } = await api('/api/media');
+    lib.innerHTML = files.length ? files.map((f) => `
+      <figure>
+        <img src="/media/${encodeURIComponent(f.filename)}" alt="" data-act="media-pick" data-url="/media/${encodeURIComponent(f.filename)}">
+        <figcaption>
+          <span title="${esc(f.originalName)}">${esc(f.originalName)}</span>
+          <button class="mini" data-act="media-del" data-file="${esc(f.filename)}" title="Удалить">✕</button>
+        </figcaption>
+      </figure>`).join('') : '<p class="empty">Пока ничего не загружено</p>';
+  } catch (err) {
+    lib.innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+  }
+}
+
+async function deleteMedia(filename) {
+  if (!confirm('Удалить файл из библиотеки?')) return;
+  try {
+    await api(`/api/media/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+    openLibrary();
+    toast('Файл удалён');
+  } catch (err) {
+    toast(err.message, true);
+  }
+}
+
+load().catch((err) => { $('#heading').textContent = 'Не открылось'; $('#lede').textContent = err.message; });
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+{
+  "booking": {
+    "url": "tel:+375292137271"
+  },
+  "sections": {
+    "showCosmetics": true
+  },
+  "photos": {
+    "logo": "https://wsrv.nl/?url=gogolbrest.by/images/logo.jpg&w=320&q=82&output=webp",
+    "hero1": "https://wsrv.nl/?url=gogolbrest.by/images/slider/1.jpg&w=1200&q=82&output=webp",
+    "hero2": "https://wsrv.nl/?url=gogolbrest.by/images/slider/2.JPG&w=1500&q=82&output=webp",
+    "hero3": "https://wsrv.nl/?url=gogolbrest.by/images/slider/3.JPG&w=1200&q=82&output=webp",
+    "hero4": "https://wsrv.nl/?url=gogolbrest.by/images/slider/4.JPG&w=1500&q=82&output=webp",
+    "hero5": "https://wsrv.nl/?url=gogolbrest.by/images/slider/5.JPG&w=1500&q=82&output=webp",
+    "services": "https://wsrv.nl/?url=gogolbrest.by/images/slider/6.JPG&w=1500&q=82&output=webp",
+    "atmosphere": "https://wsrv.nl/?url=gogolbrest.by/images/slider/2.JPG&w=1500&q=82&output=webp",
+    "about": "https://wsrv.nl/?url=gogolbrest.by/images/slider/3.JPG&w=1200&q=82&output=webp"
+  },
+  "services": [
+    {
+      "num": "№ 1",
+      "title": "Стрижка",
+      "price": "от 40 BYN",
+      "desc": "Аккуратная форма, выверенные линии и внимание к деталям — стрижка легко держит форму каждый день.",
+      "tags": "мужская · машинкой · детская"
+    },
+    {
+      "num": "№ 2",
+      "title": "Борода и бритьё",
+      "price": "от 35 BYN",
+      "desc": "Чёткий контур и аккуратное бритьё — борода держит форму, а не живёт своей жизнью.",
+      "tags": "борода · бритьё · горячее полотенце"
+    },
+    {
+      "num": "№ 3",
+      "title": "Камуфляж",
+      "price": "от 35 BYN",
+      "desc": "Тонирование седины волос и бороды — естественно, без резких границ.",
+      "tags": "волосы · борода"
+    }
+  ],
+  "combo": {
+    "kicker": "two in one",
+    "title": "Комплекс: стрижка + борода",
+    "price": "от 60 BYN"
+  },
+  "priceGroups": [
+    {
+      "title": "Старший барбер",
+      "visible": true,
+      "rows": [
+        { "name": "Стрижка", "price": "55 BYN" },
+        { "name": "Детская стрижка (до 10 лет)", "price": "45 BYN" },
+        { "name": "Камуфляж волос (тонирование седины)", "price": "45 BYN" },
+        { "name": "Бритьё головы", "price": "45 BYN" },
+        { "name": "Укладка волос", "price": "15 BYN" },
+        { "name": "Борода и бритьё", "price": "45 BYN" },
+        { "name": "Камуфляж бороды", "price": "35 BYN" },
+        { "name": "Борода + камуфляж", "price": "55 BYN" },
+        { "name": "Комплекс: стрижка + борода", "price": "75 BYN" },
+        { "name": "Комплекс: отец + сын (до 10 лет)", "price": "80 BYN" },
+        { "name": "Коррекция бровей", "price": "5 BYN" },
+        { "name": "Коррекция воском", "price": "10 BYN" }
+      ]
+    },
+    {
+      "title": "Борода и бритьё",
+      "visible": true,
+      "rows": [
+        { "name": "Борода и бритьё", "price": "40 BYN" },
+        { "name": "Камуфляж бороды", "price": "35 BYN" },
+        { "name": "Борода + камуфляж", "price": "55 BYN" }
+      ]
+    },
+    {
+      "title": "Мужская стрижка",
+      "visible": true,
+      "rows": [
+        { "name": "Стрижка", "price": "50 BYN" },
+        { "name": "Стрижка машинкой (2 насадки)", "price": "40 BYN" },
+        { "name": "Детская стрижка (до 10 лет)", "price": "40 BYN" },
+        { "name": "Камуфляж волос (тонирование седины)", "price": "45 BYN" },
+        { "name": "Бритьё головы", "price": "35 BYN" },
+        { "name": "Укладка волос", "price": "10 BYN" },
+        { "name": "Коррекция бровей", "price": "5 BYN" },
+        { "name": "Коррекция воском", "price": "10 BYN" }
+      ]
+    },
+    {
+      "title": "Комплексы",
+      "visible": true,
+      "rows": [
+        { "name": "Стрижка + борода", "price": "70 BYN" },
+        { "name": "Стрижка машинкой + борода", "price": "60 BYN" },
+        { "name": "Отец + сын (до 10 лет)", "price": "75 BYN" }
+      ]
+    }
+  ],
+  "brands": [
+    {
+      "name": "Reuzel",
+      "tagline": "pomades & clays",
+      "items": [
+        { "name": "Серая матовая помада", "note": "Матовый финиш, текстура и объём" },
+        { "name": "Розовая помада", "note": "Экстрасильная фиксация, водная основа" },
+        { "name": "Синяя помада", "note": "Сильная фиксация без склеивания" },
+        { "name": "Голубая помада", "note": "Гладкая укладка, мягкая фиксация" },
+        { "name": "Белая глина", "note": "Текстура и пряди для коротких волос" }
+      ]
+    },
+    {
+      "name": "Nishman",
+      "tagline": "styling & care",
+      "items": [
+        { "name": "Солевой спрей", "note": "Матовый эффект, объём и пышность" },
+        { "name": "Пудра для укладки", "note": "Мгновенный объём, лёгкая фиксация" },
+        { "name": "Масло для бороды", "note": "Смягчает, питает, придаёт блеск" },
+        { "name": "Одеколон после бритья", "note": "Тонизирует, снимает раздражение" },
+        { "name": "Крем-одеколон после бритья", "note": "Кремовая текстура, успокаивает кожу" }
+      ]
+    },
+    {
+      "name": "Boy's Toys",
+      "tagline": "styling & grooming",
+      "items": [
+        { "name": "101 карат", "note": "Матовый эффект, сильная фиксация" },
+        { "name": "Глина Invisible Clay", "note": "Сухой матовый эффект" },
+        { "name": "Паста Clay Putty", "note": "Матовая, пластичная фиксация" },
+        { "name": "Паста Original Paste", "note": "Пластичная фиксация, экономичный расход" },
+        { "name": "Спрей для укладки", "note": "Текстура, объём, термозащита" },
+        { "name": "Пудра для укладки", "note": "Экстремальный объём" },
+        { "name": "Бальзам для бороды", "note": "Увлажняет, убирает зуд и шелушение" },
+        { "name": "Помада для укладки", "note": "Классический стиль, фиксация до 12 часов" },
+        { "name": "Одеколон Midnight Bourbon", "note": "Антисептик, древесные и цитрусовые ноты" }
+      ]
+    },
+    {
+      "name": "Uppercut Deluxe",
+      "tagline": "beard care",
+      "items": [
+        { "name": "Бальзам для бороды", "note": "Смягчает, кондиционирует, держит форму" }
+      ]
+    }
+  ]
+}

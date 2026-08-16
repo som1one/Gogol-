@@ -1,0 +1,16 @@
+# Скрипты и конфиги уезжают на Linux-сервер. С виндовыми CRLF там
+# bash падает на «\r: command not found», а nginx не читает директивы.
+*.sh   text eol=lf
+*.conf text eol=lf
+*.sql  text eol=lf
+
+# Остальное нормализуем к LF в репозитории — сервер единственный потребитель.
+*.py   text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+
+*.jpg  binary
+*.png  binary
+*.webp binary
