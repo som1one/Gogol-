@@ -15,18 +15,319 @@
 <style>
 html { scroll-behavior: smooth; scrollbar-width: none; }
 html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }
-body { margin: 0; background: #261c14; font-family: 'Golos Text', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: #120c07; font-family: 'Golos Text', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: #8a621c; }
-a:hover { color: #261c14; }
-::selection { background: #d9c49a; color: #261c14; }
+a:hover { color: #120c07; }
+::selection { background: #d9c49a; color: #120c07; }
 [data-svc-row]:last-child { border-bottom: 0 !important; }
 @keyframes gogolFadeUp { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes gogolPole { from { background-position: 0 0; } to { background-position: 0 50.9px; } }
+
+/* Тень фотокарточки услуг подрастала по наведению (style-hover компилируется
+   в обычный :hover). На тачскрине курсора нет: браузер выдаёт :hover по тапу и
+   держит до касания в другом месте, поэтому единственным ответом на нажатие
+   фотографии был скачок тени — и он же залипал. Эффект перенесён сюда и оставлен
+   там, где есть настоящий курсор; ширина отсекает узкие окна ПК, где у карточки
+   своя, меньшая тень. */
+@media (hover: hover) and (min-width: 881px) {
+  [data-svc-card]:hover { box-shadow: 16px 24px 0 rgba(18,12,7,0.28) !important; }
+}
+
+/* Мобильная шапка. Ниже 880px строка меню не помещается целиком (логотип 160 +
+   ссылки 596 + отступы = 860), и вместо навигации в шапке остаётся предложение
+   записаться: разделы всё равно идут подряд по прокрутке, а бронь — то, ради чего
+   на сайт заходят с телефона. Правила живут внутри @media — раскладка ПК не меняется. */
+@media (max-width: 880px) {
+  [data-hdr] { flex-wrap: nowrap !important; gap: 12px !important; padding: 10px 16px !important; }
+  [data-hdr] > a:first-child { min-width: 0; }
+
+  /* В шапке остаётся единственная ссылка навигации — запись, залитая золотом,
+     чтобы читалась как призыв, а не как пункт меню. */
+  [data-nav] > a:not([data-nav-cta]) { display: none !important; }
+  [data-nav-cta] {
+    background: #d9c49a !important; color: #120c07 !important; border-color: #d9c49a !important;
+    padding: 13px 20px !important; font-size: 12.5px !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Хиро. На 12 колонках фотографии вырождаются в полосы по 41–66px, поэтому
+     коллаж перестраивается в два столбца: слева две карточки и одна широкая,
+     справа — вертикальный кадр во всю высоту. */
+  #top { padding: 30px 40px 46px !important; }
+  [data-hero-grid] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: 112px 112px 124px !important;
+    gap: 8px !important;
+  }
+  [data-hero-grid] > img:nth-of-type(1) { grid-column: 1 !important; grid-row: 3 !important; }
+  [data-hero-grid] > img:nth-of-type(2) { grid-column: 1 !important; grid-row: 1 !important; }
+  [data-hero-grid] > img:nth-of-type(3) { grid-column: 1 !important; grid-row: 2 !important; }
+  [data-hero-grid] > img:nth-of-type(4) { grid-column: 2 !important; grid-row: 1 / span 2 !important; }
+  [data-hero-grid] > img:nth-of-type(5) { grid-column: 2 !important; grid-row: 3 !important; }
+
+  /* Рукописный адрес в 52px не помещался в строку, ломался на три и уходил
+     под круглый логотип. Уменьшен и сдвинут левее, логотип — правее и мельче. */
+  [data-hero-script] { font-size: 25px !important; top: -10px !important; left: 2% !important; }
+  [data-hero-badge] { width: 84px !important; height: 84px !important; top: -18px !important; right: -4px !important; }
+
+  /* clamp по ширине экрана: 68px на узких телефонах не помещались и обрезались. */
+  #top h1 { font-size: clamp(46px, 17vw, 68px) !important; margin-top: 26px !important; }
+
+  /* Подпись собирается в одну левую колонку: правое выравнивание цитаты рядом
+     с левым подзаголовком и было тем самым «бардаком». */
+  [data-hero-cap] { display: block !important; margin-top: 14px !important; }
+  [data-hero-cap] > p { font-size: 13px !important; letter-spacing: 0.16em !important; }
+  [data-hero-cap] > div { text-align: left !important; margin-top: 20px !important; }
+  [data-hero-cap] > div::before {
+    content: ''; display: block; width: 44px; height: 1px;
+    background: rgba(217,196,154,0.45); margin-bottom: 14px;
+  }
+  [data-hero-cap] > div > p:first-of-type { font-size: 16px !important; }
+
+  /* Услуги. Колонка прайса (минимум 280px плюс разрыв 64px) не помещалась в 295px
+     и уезжала на 388px за правый край, где её срезал overflow — на телефоне от
+     секции оставался один фотокадр. Под 880px это одна колонка: снимок широким
+     кадром, под ним прайс. Чтобы стопка не растянула страницу, снимок обрезан
+     с 520px до 210px, а строки прайса собраны плотнее — секция стала короче,
+     чем была до перевёрстки, хотя теперь видна целиком. */
+  #uslugi { padding: 44px 40px 56px !important; }
+  #uslugi [data-reveal] > div:first-child { margin-bottom: 32px !important; }
+  /* minmax(0, 1fr), а не 1fr: у 1fr минимум равен min-content колонки, и на
+     узких экранах дорожка раздувалась до 280px, вынося прайс за край секции. */
+  [data-svc-grid] { grid-template-columns: minmax(0, 1fr) !important; gap: 24px !important; }
+  [data-svc-grid] > * { min-width: 0 !important; }
+
+  /* Ширина чуть меньше колонки: карточку разворачивает на 1.6°, и на полной
+     ширине её углы срезал бы overflow: hidden секции. */
+  [data-svc-card] {
+    width: calc(100% - 12px) !important; box-sizing: border-box !important; margin: 0 auto !important;
+    padding: 10px 10px 6px !important; box-shadow: 8px 8px 0 rgba(18,12,7,0.22) !important;
+  }
+  [data-svc-card] img { height: 210px !important; }
+  [data-svc-badge] { width: 64px !important; height: 64px !important; top: -16px !important; right: -8px !important; }
+  [data-svc-badge] span { font-size: 24px !important; }
+  [data-svc-caption] { font-size: 19px !important; padding: 8px 4px 4px !important; }
+
+  /* Все строки прайса устроены одинаково: номер, название, пунктир, цена справа.
+     nowrap не даёт цене сорваться под строку у длинных названий (иначе у одной
+     услуги цена сбоку, у другой снизу, а пунктир висит в пустоте), min-width: 0
+     разрешает сжиматься самому названию, а clamp подбирает кегль под ширину
+     экрана, чтобы даже «Борода и бритьё» уместилась в одну-две строки. */
+  [data-svc-row] { padding: 16px 0 15px !important; }
+  [data-svc-row] > div { gap: 8px !important; flex-wrap: nowrap !important; }
+  [data-svc-row] > div > span:first-child { font-size: 14px !important; }
+  [data-svc-row] h3 { font-size: clamp(16px, 4.8vw, 22px) !important; min-width: 0 !important; }
+  /* Пунктир отдаёт всё место названию и исчезает сам, когда места нет —
+     так он не остаётся торчащим огрызком у длинных названий. */
+  [data-svc-row] > div > span:nth-child(3) { min-width: 0 !important; }
+  [data-svc-row] > div > span:last-child { font-size: clamp(14px, 4vw, 18px) !important; }
+  [data-svc-row] > p { padding-left: 26px !important; }
+  [data-svc-row] > p:first-of-type { margin-top: 7px !important; font-size: 14px !important; line-height: 1.5 !important; }
+  [data-svc-row] > p:last-of-type { margin-top: 7px !important; font-size: 11px !important; }
+
+  /* Комплекс: в строку название с ценой не встают, а при переносе цена липла
+     к левому краю. На телефоне это карточка в столбик — надпись, черта, цена. */
+  [data-svc-combo] { margin-top: 24px !important; padding: 6px !important; box-shadow: 8px 8px 0 rgba(18,12,7,0.22) !important; }
+  [data-svc-combo] > div {
+    flex-direction: column !important; align-items: center !important; text-align: center !important;
+    padding: 10px 14px !important; gap: 0 !important;
+  }
+  /* Черта короткая и по центру: растянутая во всю ширину делала из карточки
+     плоскую ленту, разрезанную пополам. */
+  [data-svc-combo] > div > div {
+    width: 100% !important; padding-bottom: 0 !important; margin-bottom: 10px !important;
+    border-bottom: 0 !important;
+  }
+  [data-svc-combo] > div > div::after {
+    content: ''; display: block; width: 48px; height: 1px; margin: 10px auto 0;
+    background: rgba(217,196,154,0.45);
+  }
+  /* Лестница кеглей: надпись мельче названия, название мельче цены. Название
+     в одну строку помещалось только при 13.9px, где оно теряло вес и оказывалось
+     мельче всего остального, поэтому ему возвращён кегль и разрешены две строки —
+     balance режет их так, чтобы «+» не повисал в конце первой. */
+  [data-svc-combo] > div > div > span:first-child { font-size: 15px !important; }
+  [data-svc-combo] > div > div > span:last-child {
+    display: block !important; font-size: clamp(16px, 4.8vw, 22px) !important;
+    line-height: 1.25 !important; text-wrap: balance;
+  }
+  [data-svc-combo] > div > span { font-size: clamp(22px, 6vw, 28px) !important; }
+
+  [data-svc-cta] { margin-top: 34px !important; justify-content: center !important; }
+  [data-svc-cta] a { font-size: 25px !important; }
+
+  /* Атмосфера — та же ловушка, что была в услугах: колонка текста minmax(280px…)
+     с разрывом 64px не влезала в 295px, и текст выдавливало за край секции
+     в столбик шириной в одну букву. */
+  [data-atmo] { padding: 40px 40px 48px !important; }
+  [data-atmo-grid] { grid-template-columns: minmax(0, 1fr) !important; gap: 22px !important; }
+  [data-atmo-grid] > * { min-width: 0 !important; }
+  [data-atmo-grid] > img { height: 240px !important; }
+  [data-atmo-grid] > div { padding-bottom: 0 !important; }
+  [data-atmo-grid] > div > p:first-child { font-size: 26px !important; margin-bottom: 8px !important; }
+  [data-atmo-grid] h2 { font-size: clamp(22px, 6.4vw, 30px) !important; margin-bottom: 14px !important; }
+  [data-atmo-grid] > div > p:last-child { font-size: 15px !important; line-height: 1.6 !important; }
+
+  /* Пластинка в 620px накрывала на телефоне половину экрана. Просто уменьшить её
+     в прежнем углу мало: фотография теперь во всю ширину и спрятала бы пластинку
+     за собой. Поэтому на мобилке это небольшой значок поверх угла кадра — как
+     круглые печати в остальных секциях. Вращение от прокрутки остаётся. */
+  [data-vinyl] {
+    width: 150px !important; height: 150px !important; top: 12px !important; right: 12px !important;
+    z-index: 2 !important; box-shadow: 0 12px 26px rgba(0,0,0,0.45) !important;
+  }
+  [data-vinyl] > div { width: 78px !important; height: 78px !important; }
+  [data-vinyl] > div span { font-size: 12px !important; }
+  [data-vinyl] > div span span { font-size: 9px !important; }
+
+  /* О нас. Здесь ловушка перевёрнута: минимум держала колонка фотографии
+     (minmax(260px…)), а текстовая (7fr) схлопывалась до столбика в одно слово.
+     Одна колонка: текст, снимок, цифры. */
+  #onas { padding: 44px 40px 56px !important; }
+  #onas [data-reveal] > div:first-child { margin-bottom: 30px !important; }
+  [data-about-grid] { grid-template-columns: minmax(0, 1fr) !important; gap: 26px !important; }
+  [data-about-grid] > * { min-width: 0 !important; }
+  [data-about-text] { max-width: none !important; padding-top: 0 !important; }
+  [data-about-text] h3 { font-size: clamp(18px, 5.2vw, 24px) !important; line-height: 1.35 !important; margin-bottom: 18px !important; }
+  [data-about-text] > div { font-size: 15px !important; line-height: 1.65 !important; gap: 14px !important; }
+
+  /* Карточку разворачивает на 1.2°, поэтому она чуть уже колонки, а тень с 18px
+     сокращена — иначе оба края уходят в поля секции. */
+  [data-about-card] {
+    justify-self: center !important; width: calc(100% - 12px) !important; box-sizing: border-box !important;
+    padding: 10px 10px 6px !important; box-shadow: 8px 8px 0 rgba(18,12,7,0.22) !important;
+  }
+  [data-about-card] img { height: 240px !important; }
+  [data-about-stamp] { top: -14px !important; left: -10px !important; padding: 7px 12px !important; }
+  [data-about-stamp] span { font-size: 11px !important; }
+  [data-about-caption] { font-size: 20px !important; padding: 8px 4px 5px !important; }
+
+  /* Цифры: 200px минимума дают одну колонку и четыре этажа подряд. На телефоне
+     это сетка 2×2 — вчетверо короче и читается как таблица показателей. */
+  [data-about-stats] { grid-template-columns: repeat(2, 1fr) !important; gap: 20px 16px !important; margin-top: 34px !important; }
+  [data-about-stats] p:first-child { font-size: clamp(26px, 8vw, 38px) !important; }
+  [data-about-stats] p:last-child { font-size: 11px !important; margin-top: 7px !important; letter-spacing: 0.1em !important; }
+
+  /* Цены. Колонки прайса требовали минимум 320px, а внутри карточки места было
+     213px — сетка вылезала на 107px, и цены срезало краем. Одна колонка, поля
+     карточки ужаты, а сама секция подпущена ближе к краям экрана: это лист
+     прейскуранта, ему нужна ширина под строки «название — цена». */
+  #tseny { padding: 44px 24px !important; }
+  [data-price-card] { padding: 8px !important; box-shadow: 0 18px 44px rgba(0,0,0,0.5) !important; }
+  [data-price-sheet] { padding: 18px 16px !important; }
+  [data-price-grid] { grid-template-columns: minmax(0, 1fr) !important; gap: 30px !important; margin-top: 26px !important; }
+  [data-price-grid] > * { min-width: 0 !important; }
+  [data-price-grid] > div { gap: 28px !important; }
+  [data-price-grid] h3 { font-size: 14px !important; letter-spacing: 0.1em !important; }
+  [data-price-row] { gap: 8px !important; padding: 6px 0 !important; }
+  [data-price-row] > span:first-child { font-size: 14px !important; min-width: 0 !important; }
+  [data-price-row] > span:last-child { font-size: 15px !important; }
+
+  /* Шапка листа. «Прейскурант» в 30px занимал почти всю ширину строки. */
+  [data-price-sheet] > div:first-child > p:first-child { font-size: 26px !important; }
+  [data-price-sheet] > div:first-child > p:nth-child(2) { font-size: clamp(22px, 6.6vw, 34px) !important; margin: 6px 0 10px !important; }
+  [data-price-sheet] > div:first-child > p:nth-child(3) { font-size: 9px !important; letter-spacing: 0.2em !important; }
+  [data-price-sheet] > div:first-child > div { width: 160px !important; margin-top: 18px !important; }
+  [data-price-sheet] > div:last-child { margin-top: 28px !important; padding-top: 20px !important; }
+  [data-price-sheet] > div:last-child a { font-size: 22px !important; }
+
+  /* Водяной знак в 150px на телефоне лез из-за карточки во весь экран. */
+  [data-price-mark] { font-size: 92px !important; top: 30px !important; right: -14px !important; }
+
+  /* Косметика. В столбик карточки брендов растягивали секцию на несколько
+     экранов, поэтому на телефоне это лента с горизонтальной прокруткой:
+     сетка превращается в flex-полосу, карточка уже экрана — край следующей
+     всегда виден и сам подсказывает, что ленту можно листать. */
+  #kosmetika { padding: 44px 40px 52px !important; }
+  #kosmetika [data-reveal] > p:nth-of-type(2) { margin-bottom: 26px !important; }
+  [data-cos-grid] {
+    display: flex !important; grid-template-columns: none !important;
+    align-items: stretch !important; gap: 16px !important;
+    /* полоса выходит в поля секции, чтобы карточки уезжали за край экрана,
+       а padding возвращает первую карточку на линию остального текста */
+    margin: 0 -40px !important; padding: 4px 40px 22px !important;
+    overflow-x: auto !important; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-left: 40px;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  [data-cos-grid]::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  /* Ширина от экрана, а не от колонки: проценты внутри ленты считаются от её
+     содержимого без полей, и карточка выходила заметно уже нужного. */
+  [data-cos-card] {
+    flex: 0 0 calc(100vw - 96px) !important; box-sizing: border-box !important;
+    scroll-snap-align: start; box-shadow: 8px 8px 0 rgba(18,12,7,0.18) !important;
+  }
+  /* height: 100% — у брендов разное число позиций, иначе лента выглядит рваной. */
+  [data-cos-card] > div { height: 100% !important; box-sizing: border-box !important; padding: 18px 16px 14px !important; }
+  [data-cos-card] > div > div:first-of-type { margin-bottom: 12px !important; }
+  [data-cos-card] > div > div:first-of-type > p:first-child { font-size: 21px !important; }
+  [data-cos-card] > div > div:first-of-type > p:nth-child(2) { font-size: 22px !important; }
+  [data-cos-card] > div > div:first-of-type > div { width: 84px !important; margin-top: 10px !important; }
+  [data-cos-card] > div > div:not(:first-of-type) { padding: 7px 0 !important; }
+  [data-cos-card] > div > div:not(:first-of-type) > p:first-child { font-size: 13px !important; }
+  [data-cos-card] > div > div:not(:first-of-type) > p:last-child { font-size: 11.5px !important; line-height: 1.35 !important; }
+
+  /* Подвал. Колонка текста уже полей секции: цитата и строка адреса перестают
+     доходить до самых краёв, набор собирается плотнее вокруг оси. */
+  #kontakty { padding: 44px 40px 26px !important; }
+  /* Сужены именно шапка и цитата: контактам ширина нужна, они идут в ряд. */
+  #kontakty > div > div:nth-of-type(1),
+  #kontakty > div > div:nth-of-type(2) { max-width: 264px !important; margin-left: auto !important; margin-right: auto !important; }
+  #kontakty > div > div:nth-of-type(2) { margin-top: 28px !important; }
+  /* Цитата мельче: в узкой колонке прежние 22px разошлись бы на шесть строк. */
+  #kontakty > div > div:nth-of-type(2) > p:first-child { font-size: 19px !important; line-height: 1.55 !important; }
+  /* Контакты в ряд: «Контакты» и «Адрес» — два столбца, «Режим работы» строкой
+     во всю ширину под ними (он однострочный, отдельный столбец ему не нужен).
+     Три столбца в ряд не встают: на блок осталось бы по 80px. */
+  #kontakty > div > div:nth-of-type(3) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    justify-content: stretch !important;
+    margin-top: 24px !important; padding-top: 20px !important; gap: 16px 14px !important;
+  }
+  #kontakty > div > div:nth-of-type(3) > div:last-child {
+    grid-column: 1 / -1 !important; display: flex !important; align-items: baseline !important;
+    gap: 8px !important; flex-wrap: wrap !important;
+  }
+  /* nowrap — во флексе подпись сжималась и рвалась на «РЕЖИМ» / «РАБОТЫ»;
+     часы на пункт мельче, иначе строка не укладывается в 295px. */
+  #kontakty > div > div:nth-of-type(3) > div:last-child > p {
+    margin-bottom: 0 !important; white-space: nowrap !important; letter-spacing: 0.1em !important;
+  }
+  #kontakty > div > div:nth-of-type(3) > div:last-child > div { font-size: 13px !important; }
+  #kontakty > div > div:nth-of-type(3) > div > p { font-size: 11px !important; letter-spacing: 0.16em !important; margin-bottom: 7px !important; }
+  #kontakty > div > div:nth-of-type(3) > div > div { gap: 5px !important; font-size: 14px !important; }
+  /* Padding с равным отрицательным margin: площадь нажатия у телефона, карты и
+     записи растёт до 25px, а высота блока не меняется — строки остаются плотными. */
+  #kontakty > div > div:nth-of-type(3) a { padding: 4px 0 !important; margin: -4px 0 !important; }
+  /* «Ежедневно» и часы встают в одну строку — отдельная строка под них не нужна. */
+  #kontakty > div > div:nth-of-type(3) > div:last-child > div { flex-direction: row !important; gap: 8px !important; flex-wrap: wrap !important; }
+  /* Нижняя строка набрана как строка под «Гоголь» в начале подвала — мелкие
+     прописные вразрядку по центру, в два ряда: в одну строку эти две подписи
+     не встают (310px против 295px доступных). */
+  #kontakty > div > div:nth-of-type(4) {
+    margin-top: 22px !important; padding-top: 14px !important;
+    flex-direction: column !important; align-items: center !important; gap: 7px !important;
+    text-align: center !important; font-size: 10px !important;
+    letter-spacing: 0.16em !important; text-transform: uppercase !important;
+  }
+  #kontakty > div > div:nth-of-type(4) a {
+    text-underline-offset: 3px !important; text-decoration-color: rgba(148,132,106,0.45) !important;
+  }
+
+  /* Якорь «наверх» с логотипа не должен заезжать под шапку (её высота 67px). */
+  section[id], footer[id] { scroll-margin-top: 78px !important; }
+}
+
+/* Совсем узкие экраны: в двух колонках подвала остаётся по 113px, и номер
+   телефона с адресом ломаются пополам. Там контакты снова идут столбиком. */
+@media (max-width: 360px) {
+  #kontakty > div > div:nth-of-type(3) { grid-template-columns: minmax(0, 1fr) !important; gap: 16px !important; }
+}
 </style>
 </helmet>
-<div style="background: #261c14; color: #efe6d8; overflow-x: hidden;" data-screen-label="Гоголь барбершоп">
+<div style="background: #120c07; color: #efe6d8; overflow-x: hidden;" data-screen-label="Гоголь барбершоп">
 
-  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 12px 40px; border-bottom: 3px double rgba(217,196,154,0.45); position: sticky; top: 0; background: #261c14; z-index: 50;">
+  <header data-hdr="1" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 12px 40px; border-bottom: 3px double rgba(217,196,154,0.45); position: sticky; top: 0; background: #120c07; z-index: 50;">
     <a href="#top" style="display: flex; align-items: center; gap: 14px; text-decoration: none; color: #efe6d8;">
       <span style="width: 44px; height: 44px; border-radius: 50%; background: #e4dccb; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1px rgba(228,220,203,0.35);">
         <img src="{{ photos.logo }}" alt="Логотип Гоголь барбершоп" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; display: block; mix-blend-mode: multiply;">
@@ -36,30 +337,30 @@ a:hover { color: #261c14; }
         <span style="font-size: 10.5px; letter-spacing: 0.34em; text-transform: uppercase; color: #d9c49a; margin-top: 4px;">барбершоп</span>
       </span>
     </a>
-    <nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; row-gap: 10px;">
+    <nav data-nav="1" style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; row-gap: 10px;">
       <a href="#uslugi" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #efe6d8; text-decoration: none;" style-hover="color: #d9c49a;">услуги</a>
       <a href="#tseny" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #efe6d8; text-decoration: none;" style-hover="color: #d9c49a;">цены</a>
       <a href="#kosmetika" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #efe6d8; text-decoration: none;" style-hover="color: #d9c49a;">косметика</a>
       <a href="#kontakty" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #efe6d8; text-decoration: none;" style-hover="color: #d9c49a;">контакты</a>
-      <a href="{{ bookingHref }}" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #e4dccb; border: 1px solid #d9c49a; background: transparent; padding: 10px 24px; text-decoration: none; white-space: nowrap;" style-hover="background: #d9c49a; color: #261c14;">запись</a>
+      <a href="{{ bookingHref }}" data-nav-cta="1" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #e4dccb; border: 1px solid #d9c49a; background: transparent; padding: 10px 24px; text-decoration: none; white-space: nowrap;" style-hover="background: #d9c49a; color: #120c07;">запись</a>
     </nav>
   </header>
 
   <section id="top" style="padding: 48px 40px 88px; position: relative; overflow: hidden;" data-screen-label="Хиро">
     <div style="max-width: 1180px; margin: 0 auto; position: relative;">
-      <div style="display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: clamp(165px, min(16vw, 20vh), 252px) clamp(165px, min(16vw, 20vh), 252px); gap: 10px; position: relative; animation: gogolFadeUp 0.8s ease both;">
+      <div data-hero-grid="1" style="display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: clamp(165px, min(16vw, 20vh), 252px) clamp(165px, min(16vw, 20vh), 252px); gap: 10px; position: relative; animation: gogolFadeUp 0.8s ease both;">
         <img src="{{ photos.hero1 }}" alt="Интерьер барбершопа" style="grid-column: span 3; grid-row: span 2; width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.25) saturate(0.9);">
         <img src="{{ photos.hero2 }}" alt="Работа барбера" style="grid-column: span 3; grid-row: span 1; width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.25) saturate(0.9);">
         <img src="{{ photos.hero3 }}" alt="Стрижка в процессе" style="grid-column: span 2; grid-row: span 1; width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.25) saturate(0.9);">
         <img src="{{ photos.hero4 }}" alt="Барбершоп Гоголь" style="grid-column: span 4; grid-row: span 2; width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.25) saturate(0.9);">
         <img src="{{ photos.hero5 }}" alt="Детали интерьера" style="grid-column: span 5; grid-row: span 1; width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.25) saturate(0.9);">
-        <div style="position: absolute; top: -18px; left: 27%; font-family: 'Great Vibes', cursive; font-size: 52px; color: #efe6d8; transform: rotate(-5deg); text-shadow: 0 2px 12px rgba(0,0,0,0.5);">Gogolya st., 76</div>
-        <span style="position: absolute; top: -26px; right: -12px; width: clamp(92px, 10vw, 132px); height: clamp(92px, 10vw, 132px); border-radius: 50%; background: #e4dccb; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 5px rgba(228,220,203,0.2), 0 14px 30px rgba(0,0,0,0.4); transform: rotate(-6deg); z-index: 2; transition: transform 0.35s ease;" style-hover="transform: rotate(0deg) scale(1.04);">
+        <div data-hero-script="1" style="position: absolute; top: -18px; left: 27%; font-family: 'Great Vibes', cursive; font-size: 52px; color: #efe6d8; transform: rotate(-5deg); text-shadow: 0 2px 12px rgba(0,0,0,0.5);">Gogolya st., 76</div>
+        <span data-hero-badge="1" style="position: absolute; top: -26px; right: -12px; width: clamp(92px, 10vw, 132px); height: clamp(92px, 10vw, 132px); border-radius: 50%; background: #e4dccb; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 5px rgba(228,220,203,0.2), 0 14px 30px rgba(0,0,0,0.4); transform: rotate(-6deg); z-index: 2; transition: transform 0.35s ease;" style-hover="transform: rotate(0deg) scale(1.04);">
           <img src="{{ photos.logo }}" alt="Логотип Гоголь барбершоп" style="width: 86%; height: 86%; border-radius: 50%; object-fit: cover; display: block; mix-blend-mode: multiply;">
         </span>
       </div>
       <h1 style="margin: 44px 0 0; animation: gogolFadeUp 0.8s ease 0.15s both; font-family: 'Playfair Display', Georgia, serif; font-weight: 900; font-size: clamp(68px, 11.5vw, 164px); line-height: 0.95; letter-spacing: 0.02em; color: #ffffff; text-transform: uppercase;">Гоголь</h1>
-      <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-top: 18px; animation: gogolFadeUp 0.8s ease 0.3s both;">
+      <div data-hero-cap="1" style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-top: 18px; animation: gogolFadeUp 0.8s ease 0.3s both;">
         <p style="margin: 0; font-size: 15px; letter-spacing: 0.28em; text-transform: uppercase; color: #d9c49a;">барбершоп — мужские стрижки и бритьё в Бресте</p>
         <div style="text-align: right;">
           <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 400; line-height: 1.5; color: #cec0a2;">«Бакенбарды бархатные, атласные…»</p>
@@ -69,32 +370,32 @@ a:hover { color: #261c14; }
     </div>
   </section>
 
-  <div style="height: 10px; background: repeating-linear-gradient(-45deg, #a87b24 0px, #a87b24 16px, #261c14 16px, #261c14 32px, #e4dccb 32px, #e4dccb 48px);"></div>
-  <section id="uslugi" style="background: #e4dccb; color: #261c14; padding: 64px 40px 96px; scroll-margin-top: 60px; position: relative; overflow: hidden;" data-screen-label="Услуги">
+  <div style="height: 10px; background: repeating-linear-gradient(-45deg, #a87b24 0px, #a87b24 16px, #120c07 16px, #120c07 32px, #e4dccb 32px, #e4dccb 48px);"></div>
+  <section id="uslugi" style="background: #e4dccb; color: #120c07; padding: 64px 40px 96px; scroll-margin-top: 60px; position: relative; overflow: hidden;" data-screen-label="Услуги">
     <div data-reveal="1" style="max-width: 1180px; margin: 0 auto;">
       <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 72px;">
-        <div style="flex: 1; height: 1px; background: rgba(38,28,20,0.4);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(18,12,7,0.4);"></div>
         <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;">Услуги</h2>
-        <div style="flex: 1; height: 1px; background: rgba(38,28,20,0.4);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(18,12,7,0.4);"></div>
       </div>
 
-      <div style="display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; gap: 64px; align-items: start;">
-        <div data-tilt="-1.6" style="background: #261c14; padding: 14px 14px 10px; box-shadow: 16px 16px 0 rgba(38,28,20,0.22); position: relative; align-self: center;" style-hover="box-shadow: 16px 24px 0 rgba(38,28,20,0.28);">
-          <div style="position: absolute; top: -24px; right: -22px; width: 92px; height: 92px; border-radius: 50%; background: #efe6d8; border: 3px double #261c14; box-shadow: 0 0 0 4px #efe6d8, 0 10px 22px rgba(38,28,20,0.35); transform: rotate(9deg); display: flex; align-items: center; justify-content: center; z-index: 2; transition: transform 0.3s ease;" style-hover="transform: rotate(16deg) scale(1.06);">
-            <span style="font-family: 'Great Vibes', cursive; font-size: 34px; color: #261c14; line-height: 1;">Gogol</span>
+      <div data-svc-grid="1" style="display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; gap: 64px; align-items: start;">
+        <div data-tilt="-1.6" data-svc-card="1" style="background: #120c07; padding: 14px 14px 10px; box-shadow: 16px 16px 0 rgba(18,12,7,0.22); position: relative; align-self: center;">
+          <div data-svc-badge="1" style="position: absolute; top: -24px; right: -22px; width: 92px; height: 92px; border-radius: 50%; background: #efe6d8; border: 3px double #120c07; box-shadow: 0 0 0 4px #efe6d8, 0 10px 22px rgba(18,12,7,0.35); transform: rotate(9deg); display: flex; align-items: center; justify-content: center; z-index: 2; transition: transform 0.3s ease;" style-hover="transform: rotate(16deg) scale(1.06);">
+            <span style="font-family: 'Great Vibes', cursive; font-size: 34px; color: #120c07; line-height: 1;">Gogol</span>
           </div>
           <img loading="lazy" src="{{ photos.services }}" alt="Стрижка" style="width: 100%; height: 520px; object-fit: cover; object-position: 50% 10%; display: block; filter: sepia(0.3) saturate(0.85);">
-          <p style="margin: 0; padding: 9px 4px 6px; font-family: 'Great Vibes', cursive; font-size: 25px; color: #d9c49a; text-align: center; line-height: 1;">every cut tells a story</p>
+          <p data-svc-caption="1" style="margin: 0; padding: 9px 4px 6px; font-family: 'Great Vibes', cursive; font-size: 25px; color: #d9c49a; text-align: center; line-height: 1;">every cut tells a story</p>
         </div>
 
         <div>
-          <div style="border-top: 3px double #261c14; border-bottom: 3px double #261c14;">
+          <div style="border-top: 3px double #120c07; border-bottom: 3px double #120c07;">
             <sc-for list="{{ services }}" as="svc" hint-placeholder-count="3">
-              <div data-svc-row="1" style="padding: 30px 0 28px; border-bottom: 1px solid rgba(38,28,20,0.3);">
+              <div data-svc-row="1" style="padding: 30px 0 28px; border-bottom: 1px solid rgba(18,12,7,0.3);">
                 <div style="display: flex; align-items: baseline; gap: 18px;">
                   <span style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 20px; font-weight: 700; color: #a87b24;">{{ svc.num }}</span>
                   <h3 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em;">{{ svc.title }}</h3>
-                  <span style="flex: 1; border-bottom: 1px dotted rgba(38,28,20,0.45); transform: translateY(-6px);"></span>
+                  <span style="flex: 1; border-bottom: 1px dotted rgba(18,12,7,0.45); transform: translateY(-6px);"></span>
                   <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 900; white-space: nowrap;">{{ svc.price }}</span>
                 </div>
                 <p style="margin: 12px 0 0; padding-left: 52px; max-width: 470px; font-size: 15px; line-height: 1.65; color: #3d2d1e; text-wrap: pretty;">{{ svc.desc }}</p>
@@ -103,7 +404,7 @@ a:hover { color: #261c14; }
             </sc-for>
           </div>
 
-          <div style="margin-top: 40px; background: #261c14; padding: 8px; box-shadow: 14px 14px 0 rgba(38,28,20,0.22);">
+          <div data-svc-combo="1" style="margin-top: 40px; background: #120c07; padding: 8px; box-shadow: 14px 14px 0 rgba(18,12,7,0.22);">
             <div style="border: 1px solid rgba(217,196,154,0.5); padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
               <div>
                 <span style="display: block; font-family: 'Great Vibes', cursive; font-size: 30px; color: #d9c49a; line-height: 1.1;">{{ combo.kicker }}</span>
@@ -115,13 +416,13 @@ a:hover { color: #261c14; }
         </div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; margin-top: 80px;">
-        <a href="{{ bookingHref }}" style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 32px; font-weight: 700; letter-spacing: 0.02em; color: #261c14; text-decoration: none; border-bottom: 3px solid #261c14; padding-bottom: 4px;" style-hover="color: #8a621c; border-bottom: 3px solid #8a621c;">Записаться&nbsp;&nbsp;⟶</a>
+      <div data-svc-cta="1" style="display: flex; justify-content: flex-end; margin-top: 80px;">
+        <a href="{{ bookingHref }}" style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 32px; font-weight: 700; letter-spacing: 0.02em; color: #120c07; text-decoration: none; border-bottom: 3px solid #120c07; padding-bottom: 4px;" style-hover="color: #8a621c; border-bottom: 3px solid #8a621c;">Записаться&nbsp;&nbsp;⟶</a>
       </div>
     </div>
   </section>
 
-  <section style="position: relative; padding: 110px 40px 90px; overflow: hidden;" data-screen-label="Атмосфера">
+  <section data-atmo="1" style="position: relative; padding: 110px 40px 90px; overflow: hidden;" data-screen-label="Атмосфера">
     <div data-vinyl="1" style="position: absolute; top: -190px; right: -170px; width: 620px; height: 620px; border-radius: 50%; will-change: transform; background: repeating-radial-gradient(circle at 50% 50%, #17110c 0px, #17110c 5px, #2a2016 5px, #2a2016 6px); box-shadow: 0 30px 80px rgba(0,0,0,0.5);">
       <div style="position: absolute; inset: 0; margin: auto; width: 190px; height: 190px; border-radius: 50%; background: #a87b24; display: flex; align-items: center; justify-content: center; text-align: center;">
         <span style="font-family: 'Great Vibes', cursive; font-size: 36px; color: #efe6d8; line-height: 1.15; transform: rotate(-8deg);">Gogol<br>barbershop<br><span style="font-size: 24px;">est. Brest</span></span>
@@ -129,7 +430,7 @@ a:hover { color: #261c14; }
 
     </div>
     <div style="max-width: 1180px; margin: 0 auto; position: relative;">
-      <div data-reveal="1" style="display: grid; grid-template-columns: minmax(280px, 5fr) 6fr; gap: 64px; align-items: end;">
+      <div data-reveal="1" data-atmo-grid="1" style="display: grid; grid-template-columns: minmax(280px, 5fr) 6fr; gap: 64px; align-items: end;">
         <img loading="lazy" src="{{ photos.atmosphere }}" alt="Атмосфера барбершопа" style="width: 100%; height: 540px; object-fit: cover; display: block; filter: sepia(0.35) saturate(0.8) contrast(1.05);">
         <div style="padding-bottom: 24px; max-width: 480px;">
           <p style="margin: 0 0 14px; font-family: 'Great Vibes', cursive; font-size: 46px; color: #d9c49a;">gentlemen's club</p>
@@ -140,45 +441,45 @@ a:hover { color: #261c14; }
     </div>
   </section>
 
-  <section id="onas" style="background: #e4dccb; color: #261c14; padding: 64px 40px 90px;" data-screen-label="О нас">
+  <section id="onas" style="background: #e4dccb; color: #120c07; padding: 64px 40px 90px;" data-screen-label="О нас">
     <div data-reveal="1" style="max-width: 1180px; margin: 0 auto;">
       <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 64px;">
-        <div style="flex: 1; height: 1px; background: rgba(38,28,20,0.4);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(18,12,7,0.4);"></div>
         <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;">О нас</h2>
-        <div style="flex: 1; height: 1px; background: rgba(38,28,20,0.4);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(18,12,7,0.4);"></div>
       </div>
-      <div style="display: grid; grid-template-columns: 7fr minmax(260px, 5fr); gap: 56px; align-items: start;">
-        <div style="max-width: 460px; padding-top: 12px;">
-          <h3 style="margin: 0 0 26px; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1.45; color: #261c14; text-wrap: pretty;">«Гоголь» — мужской клуб на улице Гоголя, 76. Стрижки, борода, бритьё, камуфляж седины.</h3>
+      <div data-about-grid="1" style="display: grid; grid-template-columns: 7fr minmax(260px, 5fr); gap: 56px; align-items: start;">
+        <div data-about-text="1" style="max-width: 460px; padding-top: 12px;">
+          <h3 style="margin: 0 0 26px; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1.45; color: #120c07; text-wrap: pretty;">«Гоголь» — мужской клуб на улице Гоголя, 76. Стрижки, борода, бритьё, камуфляж седины.</h3>
           <div style="display: flex; flex-direction: column; gap: 20px; font-size: 16px; line-height: 1.75; color: #3d2d1e;">
             <p style="margin: 0; text-wrap: pretty;">Мастера с опытом от пяти лет: стрижём мужчин и детей, приводим бороду в форму, работаем с сединой аккуратно и без резких границ.</p>
             <p style="margin: 0; text-wrap: pretty;">Косметика REUZEL, NISHMAN и BOY'S TOYS — в работе и в продаже у стойки.</p>
             <p style="margin: 0; text-wrap: pretty;">Мы в пяти минутах от главной пешеходной улицы Бреста. Ежедневно с 10:00 до 21:00.</p>
-            <p style="margin: 0; text-wrap: pretty;">Больше нас — в Instagram <a href="https://www.instagram.com/gogol_brest/" target="_blank" rel="noopener" style="color: #3d2d1e; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(38,28,20,0.4);" style-hover="color: #8a621c;">@gogol_brest</a>.</p>
+            <p style="margin: 0; text-wrap: pretty;">Больше нас — в Instagram <a href="https://www.instagram.com/gogol_brest/" target="_blank" rel="noopener" style="color: #3d2d1e; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(18,12,7,0.4);" style-hover="color: #8a621c;">@gogol_brest</a>.</p>
           </div>
         </div>
-        <div style="justify-self: end; width: min(100%, 430px); background: #261c14; padding: 16px 16px 10px; box-shadow: 18px 18px 0 rgba(38,28,20,0.22); transform: rotate(1.2deg); position: relative; transition: transform 0.35s ease, box-shadow 0.35s ease;" style-hover="transform: rotate(0deg) translateY(-6px); box-shadow: 18px 26px 0 rgba(38,28,20,0.26);">
-          <div style="position: absolute; top: -24px; left: -26px; background: #efe6d8; border: 3px double #261c14; box-shadow: 0 0 0 4px #efe6d8, 0 10px 22px rgba(38,28,20,0.4); transform: rotate(-7deg); padding: 9px 16px; text-align: center; z-index: 2; transition: transform 0.3s ease;" style-hover="transform: rotate(2deg);">
-            <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #261c14; line-height: 1.7;">est. Brest<br><span style="color: #8a621c;">★ 5.00 ★</span></span>
+        <div data-about-card="1" style="justify-self: end; width: min(100%, 430px); background: #120c07; padding: 16px 16px 10px; box-shadow: 18px 18px 0 rgba(18,12,7,0.22); transform: rotate(1.2deg); position: relative; transition: transform 0.35s ease, box-shadow 0.35s ease;" style-hover="transform: rotate(0deg) translateY(-6px); box-shadow: 18px 26px 0 rgba(18,12,7,0.26);">
+          <div data-about-stamp="1" style="position: absolute; top: -24px; left: -26px; background: #efe6d8; border: 3px double #120c07; box-shadow: 0 0 0 4px #efe6d8, 0 10px 22px rgba(18,12,7,0.4); transform: rotate(-7deg); padding: 9px 16px; text-align: center; z-index: 2; transition: transform 0.3s ease;" style-hover="transform: rotate(2deg);">
+            <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #120c07; line-height: 1.7;">est. Brest<br><span style="color: #8a621c;">★ 5.00 ★</span></span>
           </div>
           <img loading="lazy" src="{{ photos.about }}" alt="В барбершопе Гоголь" style="width: 100%; height: 340px; object-fit: cover; display: block; filter: sepia(0.3) saturate(0.85);">
-          <p style="margin: 0; padding: 10px 4px 8px; font-family: 'Great Vibes', cursive; font-size: 26px; color: #d9c49a; text-align: center; line-height: 1;">Gogolya st., 76</p>
+          <p data-about-caption="1" style="margin: 0; padding: 10px 4px 8px; font-family: 'Great Vibes', cursive; font-size: 26px; color: #d9c49a; text-align: center; line-height: 1;">Gogolya st., 76</p>
         </div>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-top: 84px;">
-        <div style="border-top: 3px double #261c14; padding-top: 18px;">
+      <div data-about-stats="1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-top: 84px;">
+        <div style="border-top: 3px double #120c07; padding-top: 18px;">
           <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 54px; font-weight: 900; line-height: 1;">5.00&nbsp;<span style="color: #a87b24;">★</span></p>
           <p style="margin: 10px 0 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a621c;">средний рейтинг</p>
         </div>
-        <div style="border-top: 3px double #261c14; padding-top: 18px;">
+        <div style="border-top: 3px double #120c07; padding-top: 18px;">
           <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 54px; font-weight: 900; line-height: 1;">5+&nbsp;лет</p>
           <p style="margin: 10px 0 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a621c;">в сфере мужских стрижек</p>
         </div>
-        <div style="border-top: 3px double #261c14; padding-top: 18px;">
+        <div style="border-top: 3px double #120c07; padding-top: 18px;">
           <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 54px; font-weight: 900; line-height: 1;">1000+</p>
           <p style="margin: 10px 0 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a621c;">довольных клиентов</p>
         </div>
-        <div style="border-top: 3px double #261c14; padding-top: 18px;">
+        <div style="border-top: 3px double #120c07; padding-top: 18px;">
           <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 54px; font-weight: 900; line-height: 1;">5&nbsp;минут</p>
           <p style="margin: 10px 0 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a621c;">от пешеходной улицы Бреста</p>
         </div>
@@ -187,34 +488,34 @@ a:hover { color: #261c14; }
   </section>
 
   <section id="tseny" style="padding: 100px 40px; scroll-margin-top: 60px; position: relative; overflow: hidden;" data-screen-label="Цены">
-    <div style="position: absolute; top: 60px; right: -26px; writing-mode: vertical-rl; font-size: 150px; font-weight: 900; text-transform: uppercase; line-height: 1; letter-spacing: 0.06em; font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: rgba(217,196,154,0.12); pointer-events: none;">Гоголь ◆ Брест</div>
+    <div data-price-mark="1" style="position: absolute; top: 60px; right: -26px; writing-mode: vertical-rl; font-size: 150px; font-weight: 900; text-transform: uppercase; line-height: 1; letter-spacing: 0.06em; font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: rgba(217,196,154,0.12); pointer-events: none;">Гоголь ◆ Брест</div>
     <div style="max-width: 1180px; margin: 0 auto; position: relative;">
       <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 72px;">
         <div style="flex: 1; height: 1px; background: rgba(217,196,154,0.35);"></div>
         <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #ffffff;">Цены</h2>
         <div style="flex: 1; height: 1px; background: rgba(217,196,154,0.35);"></div>
       </div>
-      <div data-reveal="1" style="max-width: 1020px; margin: 0 auto; background: #efe6d8; padding: 12px; box-shadow: 0 34px 80px rgba(0,0,0,0.5); transform: rotate(0.4deg); transition: transform 0.4s ease;" style-hover="transform: rotate(0deg);">
-        <div style="border: 1px solid rgba(38,28,20,0.55); padding: clamp(28px, 5vw, 54px);">
+      <div data-reveal="1" data-price-card="1" style="max-width: 1020px; margin: 0 auto; background: #efe6d8; padding: 12px; box-shadow: 0 34px 80px rgba(0,0,0,0.5); transform: rotate(0.4deg); transition: transform 0.4s ease;" style-hover="transform: rotate(0deg);">
+        <div data-price-sheet="1" style="border: 1px solid rgba(18,12,7,0.55); padding: clamp(28px, 5vw, 54px);">
           <div style="text-align: center;">
             <p style="margin: 0; font-family: 'Great Vibes', cursive; font-size: 36px; color: #a87b24; line-height: 1;">price list</p>
-            <p style="margin: 8px 0 12px; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(30px, 4vw, 44px); font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #261c14;">Прейскурант</p>
+            <p style="margin: 8px 0 12px; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(30px, 4vw, 44px); font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #120c07;">Прейскурант</p>
             <p style="margin: 0; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #8a621c;">гоголь барбершоп ★ ул. гоголя, 76 ★ брест</p>
-            <div style="width: 260px; margin: 26px auto 0; border-top: 3px double #261c14;"></div>
+            <div style="width: 260px; margin: 26px auto 0; border-top: 3px double #120c07;"></div>
           </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 44px 72px; align-items: start; margin-top: 40px;">
+          <div data-price-grid="1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 44px 72px; align-items: start; margin-top: 40px;">
             <div style="display: flex; flex-direction: column; gap: 40px;">
               <sc-for list="{{ priceColA }}" as="group" hint-placeholder-count="2">
                 <div>
                   <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
-                    <span style="flex: 1; border-top: 1px solid rgba(38,28,20,0.35);"></span>
-                    <h3 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #261c14; white-space: nowrap;">{{ group.title }}</h3>
-                    <span style="flex: 1; border-top: 1px solid rgba(38,28,20,0.35);"></span>
+                    <span style="flex: 1; border-top: 1px solid rgba(18,12,7,0.35);"></span>
+                    <h3 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #120c07; white-space: nowrap;">{{ group.title }}</h3>
+                    <span style="flex: 1; border-top: 1px solid rgba(18,12,7,0.35);"></span>
                   </div>
                   <sc-for list="{{ group.rows }}" as="row" hint-placeholder-count="6">
-                    <div style="display: flex; align-items: baseline; gap: 10px; padding: 8px 0;">
+                    <div data-price-row="1" style="display: flex; align-items: baseline; gap: 10px; padding: 8px 0;">
                       <span style="font-size: 15px; color: #3d2d1e;">{{ row.name }}</span>
-                      <span style="flex: 1; border-bottom: 1px dotted rgba(38,28,20,0.4); transform: translateY(-4px);"></span>
+                      <span style="flex: 1; border-bottom: 1px dotted rgba(18,12,7,0.4); transform: translateY(-4px);"></span>
                       <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 900; color: #8a621c; white-space: nowrap;">{{ row.price }}</span>
                     </div>
                   </sc-for>
@@ -225,14 +526,14 @@ a:hover { color: #261c14; }
               <sc-for list="{{ priceColB }}" as="group" hint-placeholder-count="2">
                 <div>
                   <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
-                    <span style="flex: 1; border-top: 1px solid rgba(38,28,20,0.35);"></span>
-                    <h3 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #261c14; white-space: nowrap;">{{ group.title }}</h3>
-                    <span style="flex: 1; border-top: 1px solid rgba(38,28,20,0.35);"></span>
+                    <span style="flex: 1; border-top: 1px solid rgba(18,12,7,0.35);"></span>
+                    <h3 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #120c07; white-space: nowrap;">{{ group.title }}</h3>
+                    <span style="flex: 1; border-top: 1px solid rgba(18,12,7,0.35);"></span>
                   </div>
                   <sc-for list="{{ group.rows }}" as="row" hint-placeholder-count="6">
-                    <div style="display: flex; align-items: baseline; gap: 10px; padding: 8px 0;">
+                    <div data-price-row="1" style="display: flex; align-items: baseline; gap: 10px; padding: 8px 0;">
                       <span style="font-size: 15px; color: #3d2d1e;">{{ row.name }}</span>
-                      <span style="flex: 1; border-bottom: 1px dotted rgba(38,28,20,0.4); transform: translateY(-4px);"></span>
+                      <span style="flex: 1; border-bottom: 1px dotted rgba(18,12,7,0.4); transform: translateY(-4px);"></span>
                       <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 900; color: #8a621c; white-space: nowrap;">{{ row.price }}</span>
                     </div>
                   </sc-for>
@@ -240,8 +541,8 @@ a:hover { color: #261c14; }
               </sc-for>
             </div>
           </div>
-          <div style="text-align: center; margin-top: 46px; padding-top: 26px; border-top: 3px double #261c14;">
-            <a href="{{ bookingHref }}" style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 28px; font-weight: 700; color: #261c14; text-decoration: none; border-bottom: 2px solid #261c14; padding-bottom: 3px;" style-hover="color: #8a621c; border-bottom: 2px solid #8a621c;">Записаться&nbsp;&nbsp;⟶</a>
+          <div style="text-align: center; margin-top: 46px; padding-top: 26px; border-top: 3px double #120c07;">
+            <a href="{{ bookingHref }}" style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 28px; font-weight: 700; color: #120c07; text-decoration: none; border-bottom: 2px solid #120c07; padding-bottom: 3px;" style-hover="color: #8a621c; border-bottom: 2px solid #8a621c;">Записаться&nbsp;&nbsp;⟶</a>
           </div>
         </div>
       </div>
@@ -249,29 +550,29 @@ a:hover { color: #261c14; }
   </section>
 
   <sc-if value="{{ showCosmetics }}" hint-placeholder-val="{{ true }}">
-  <section id="kosmetika" style="background: #e4dccb; color: #261c14; padding: 64px 40px 96px; scroll-margin-top: 60px;" data-screen-label="Косметика">
+  <section id="kosmetika" style="background: #e4dccb; color: #120c07; padding: 64px 40px 96px; scroll-margin-top: 60px;" data-screen-label="Косметика">
     <div data-reveal="1" style="max-width: 1180px; margin: 0 auto;">
       <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 24px;">
-        <div style="flex: 1; height: 1px; background: rgba(38,28,20,0.4);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(18,12,7,0.4);"></div>
         <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;">Косметика</h2>
-        <div style="flex: 1; height: 1px; background: rgba(38,28,20,0.4);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(18,12,7,0.4);"></div>
       </div>
       <p style="margin: 0; text-align: center; font-family: 'Great Vibes', cursive; font-size: 34px; color: #a87b24; line-height: 1;">take it home</p>
       <p style="margin: 12px auto 60px; max-width: 560px; text-align: center; font-size: 15px; line-height: 1.6; color: #3d2d1e;">Та же косметика, на которой работают мастера, — в продаже у стойки.</p>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 30px; align-items: start;">
+      <div data-cos-grid="1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 30px; align-items: start;">
         <sc-for list="{{ brands }}" as="brand" hint-placeholder-count="4">
-          <div style="background: #efe6d8; padding: 9px; box-shadow: 12px 12px 0 rgba(38,28,20,0.18); transition: transform 0.3s ease, box-shadow 0.3s ease;" style-hover="transform: translateY(-6px); box-shadow: 12px 20px 0 rgba(38,28,20,0.24);">
-            <div style="border: 1px solid rgba(38,28,20,0.55); padding: 24px 22px 20px; position: relative;">
+          <div data-cos-card="1" style="background: #efe6d8; padding: 9px; box-shadow: 12px 12px 0 rgba(18,12,7,0.18); transition: transform 0.3s ease, box-shadow 0.3s ease;" style-hover="transform: translateY(-6px); box-shadow: 12px 20px 0 rgba(18,12,7,0.24);">
+            <div style="border: 1px solid rgba(18,12,7,0.55); padding: 24px 22px 20px; position: relative;">
               <span style="position: absolute; top: 8px; left: 10px; font-size: 10px; color: #a87b24;">★</span>
               <span style="position: absolute; top: 8px; right: 10px; font-size: 10px; color: #a87b24;">★</span>
               <div style="text-align: center; margin-bottom: 16px;">
-                <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 23px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: #261c14;">{{ brand.name }}</p>
+                <p style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 23px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: #120c07;">{{ brand.name }}</p>
                 <p style="margin: 4px 0 0; font-family: 'Great Vibes', cursive; font-size: 25px; color: #a87b24; line-height: 1;">{{ brand.tagline }}</p>
-                <div style="width: 110px; margin: 14px auto 0; border-top: 3px double #261c14;"></div>
+                <div style="width: 110px; margin: 14px auto 0; border-top: 3px double #120c07;"></div>
               </div>
               <sc-for list="{{ brand.items }}" as="item" hint-placeholder-count="4">
-                <div style="padding: 9px 0; border-bottom: 1px dotted rgba(38,28,20,0.3);">
-                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #261c14;">{{ item.name }}</p>
+                <div style="padding: 9px 0; border-bottom: 1px dotted rgba(18,12,7,0.3);">
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #120c07;">{{ item.name }}</p>
                   <p style="margin: 3px 0 0; font-size: 12.5px; color: #6b5946;">{{ item.note }}</p>
                 </div>
               </sc-for>
@@ -283,7 +584,7 @@ a:hover { color: #261c14; }
   </section>
   </sc-if>
 
-  <div style="height: 10px; background: repeating-linear-gradient(-45deg, #a87b24 0px, #a87b24 16px, #261c14 16px, #261c14 32px, #e4dccb 32px, #e4dccb 48px);"></div>
+  <div style="height: 10px; background: repeating-linear-gradient(-45deg, #a87b24 0px, #a87b24 16px, #120c07 16px, #120c07 32px, #e4dccb 32px, #e4dccb 48px);"></div>
   <footer id="kontakty" style="padding: 56px 40px 30px; scroll-margin-top: 60px;" data-screen-label="Контакты">
     <div style="max-width: 1180px; margin: 0 auto;">
       <div data-reveal="1" style="text-align: center;">
