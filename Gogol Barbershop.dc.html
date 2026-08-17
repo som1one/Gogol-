@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Иконка вкладки — тот же логотип, что в шапке. Плейсхолдер подставляет
+     сервер (render_site), поэтому ссылка живая: сменили логотип в админке —
+     сменилась и иконка. Стоит в настоящем <head>, а не в <helmet>: браузеру
+     иконка нужна до того, как поднимется рантайм. -->
+<link rel="icon" href="{{ photos.logo }}">
+<link rel="apple-touch-icon" href="{{ photos.logo }}">
 <script src="./support.js"></script>
 </head>
 <body>
