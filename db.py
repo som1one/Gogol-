@@ -133,7 +133,7 @@ def load_content() -> dict[str, Any]:
             )
 
     return {
-        "booking": {"url": settings.get("booking_url", "tel:+375292137271")},
+        "booking": {"url": settings.get("booking_url", "https://n24164.yclients.com/company/41786/personal/menu?o=")},
         "sections": {"showCosmetics": settings.get("show_cosmetics", "true") == "true"},
         "photos": {r["slot"]: r["url"] for r in photos_rows},
         "photoLabels": {r["slot"]: r["label"] for r in photos_rows},

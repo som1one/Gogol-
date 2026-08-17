@@ -633,13 +633,13 @@ a:hover { color: #120c07; }
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{
-  &quot;bookingUrl&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;tel:+375292137271&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Запись&quot; },
+  &quot;bookingUrl&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;https://n24164.yclients.com/company/41786/personal/menu?o=&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Запись&quot; },
   &quot;showCosmetics&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Секции&quot; }
 }">
 // Фолбэк на случай открытия файла напрямую, без сервера.
 // Рабочие данные приходят из PostgreSQL и подставляются в window.__GOGOL_CONTENT__.
 const DEFAULT_CONTENT = {
-  booking: { url: 'tel:+375292137271' },
+  booking: { url: 'https://n24164.yclients.com/company/41786/personal/menu?o=' },
   sections: { showCosmetics: true },
   photos: {
     logo: 'https://wsrv.nl/?url=gogolbrest.by/images/logo.jpg&w=320&q=82&output=webp',
@@ -804,7 +804,7 @@ class Component extends DCLogic {
       ? c.sections.showCosmetics
       : (this.props.showCosmetics ?? true);
     return {
-      bookingHref: (c.booking && c.booking.url) || this.props.bookingUrl || 'tel:+375292137271',
+      bookingHref: (c.booking && c.booking.url) || this.props.bookingUrl || 'https://n24164.yclients.com/company/41786/personal/menu?o=',
       showCosmetics: cosmetics,
       photos: photos,
       services: c.services || [],
