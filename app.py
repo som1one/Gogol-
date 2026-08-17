@@ -8,7 +8,6 @@ import re
 import secrets
 import sys
 import uuid
-from html import escape
 from pathlib import Path
 
 from flask import (
@@ -25,6 +24,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 import db
+import render
 
 BASE_DIR = Path(__file__).resolve().parent
 SITE_FILE = BASE_DIR / "Gogol Barbershop.dc.html"
@@ -103,20 +103,16 @@ def check_csrf() -> None:
 # --------------------------------------------------------------------------- сайт
 
 
-PHOTO_PLACEHOLDER_RE = re.compile(r"\{\{\s*photos\.(\w+)\s*\}\}")
-
-
 def render_site() -> str:
     """Отдаёт разметку сайта с подставленным контентом из базы."""
     html = SITE_FILE.read_text(encoding="utf-8")
     content = db.public_content()
 
-    # Адреса картинок подставляем прямо в разметку: иначе браузер успевает
-    # отправить запрос по литеральному "{{ photos.* }}" ещё до рендера рантайма.
-    photos = content.get("photos", {})
-    html = PHOTO_PLACEHOLDER_RE.sub(
-        lambda m: escape(photos.get(m.group(1), ""), quote=True), html
-    )
+    # Шаблон разворачивается на сервере целиком: услуги, прейскуранты, бренды,
+    # адреса картинок и ссылки записи попадают в HTML до всякого JS. Рантайм
+    # после гидрации рендерит ту же разметку, поэтому результат не меняется, но
+    # страница остаётся читаемой без скриптов — и в поиске, и при их отказе.
+    html = render.expand(html, render.build_vals(content))
 
     payload = json.dumps(content, ensure_ascii=False)
     # Не даём данным «выйти» из тега <script>.
