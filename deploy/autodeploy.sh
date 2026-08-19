@@ -23,9 +23,11 @@ USER_APP="gogol"
 log() { echo "[deploy] $*"; }
 
 # Первый запуск — клонируем.
+fresh=""
 if [[ ! -d "${SRC}/.git" ]]; then
     log "первый запуск, клонирую ${REPO}"
     git clone --branch "${BRANCH}" "${REPO}" "${SRC}"
+    fresh="yes"
 fi
 
 cd "${SRC}"
@@ -35,11 +37,19 @@ before="$(git rev-parse HEAD 2>/dev/null || echo '')"
 git fetch --quiet origin "${BRANCH}"
 after="$(git rev-parse "origin/${BRANCH}")"
 
-if [[ "${before}" == "${after}" ]]; then
+# У свежей копии HEAD сразу равен origin/main, и без флага fresh первый запуск
+# уходил в «нечего делать»: репозиторий клонировался, а код до /opt/gogol не
+# доезжал и сервис не перезапускался. Выглядело как успешный выкат, которого
+# не было.
+if [[ -z "${fresh}" && "${before}" == "${after}" ]]; then
     exit 0                     # нечего делать, не шумим в журнале
 fi
 
-log "новый коммит: ${before:0:7}${before:+ }→ ${after:0:7}"
+if [[ -n "${fresh}" ]]; then
+    log "первая раскладка: ${after:0:7}"
+else
+    log "новый коммит: ${before:0:7}${before:+ }→ ${after:0:7}"
+fi
 git reset --quiet --hard "origin/${BRANCH}"
 
 # Раскладываем код. Не трогаем то, что живёт только на сервере:
