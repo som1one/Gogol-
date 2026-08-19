@@ -12,12 +12,23 @@ set -euo pipefail
 
 REPO="git@github.com:som1one/Gogol-.git"
 BRANCH="main"
+# Репозиторий приватный, поэтому клон идёт по SSH и ему нужен ключ. Ключ свой,
+# отдельный от общих root'овых: на сервере живёт второй сайт, и его настройки
+# трогать нельзя. Публичную половину один раз добавляют в GitHub → репозиторий →
+# Settings → Deploy keys (доступ на чтение, write access не нужен).
+# accept-new — у systemd нет терминала, и неизвестный ключ github.com иначе
+# завалил бы выкат вопросом, на который некому ответить.
+DEPLOY_KEY="/root/.ssh/gogol_deploy"
 SRC="/opt/gogol-src"          # рабочая копия репозитория
 APP="/opt/gogol"              # то, что реально крутится
 PORT="8790"
 USER_APP="gogol"
 
 log() { echo "[deploy] $*"; }
+
+if [[ -f "${DEPLOY_KEY}" ]]; then
+    export GIT_SSH_COMMAND="ssh -i ${DEPLOY_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+fi
 
 # Первый запуск — клонируем.
 if [[ ! -d "${SRC}/.git" ]]; then

@@ -57,6 +57,33 @@ ssh -N -L 8899:127.0.0.1:8790 root@186.246.10.51
 ssh root@186.246.10.51 'chown -R gogol:gogol /opt/gogol && systemctl restart gogol'
 ```
 
+## Автовыкат из GitHub
+
+Таймер `gogol-deploy.timer` раз в несколько минут дёргает `autodeploy.sh`: если
+в `main` появился новый коммит — забирает его, раскладывает по `/opt/gogol`,
+перезапускает сервис и проверяет, что сайт отвечает 200. Не ответил — откат на
+предыдущий коммит, сайт остаётся живым.
+
+Репозиторий приватный, поэтому серверу нужен свой ключ доступа. Один раз:
+
+```bash
+ssh root@186.246.10.51 'test -f /root/.ssh/gogol_deploy || ssh-keygen -t ed25519 -N "" -C gogol-deploy -f /root/.ssh/gogol_deploy; cat /root/.ssh/gogol_deploy.pub'
+```
+
+Напечатанную строку добавить в GitHub: репозиторий → Settings → Deploy keys →
+Add deploy key. Галочку «Allow write access» **не** ставить — выкату нужно
+только чтение.
+
+Ключ отдельный, а не общий root'овый: на сервере живёт второй сайт, и его
+настройки SSH выкат не трогает — скрипт сам подставляет нужный ключ через
+`GIT_SSH_COMMAND`.
+
+Проверить и выкатить вручную:
+
+```bash
+ssh root@186.246.10.51 'systemctl start gogol-deploy; journalctl -u gogol-deploy -n 20 --no-pager'
+```
+
 ## Полностью удалить (ничего чужого не заденет)
 
 ```bash
