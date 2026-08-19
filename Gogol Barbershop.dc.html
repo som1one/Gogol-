@@ -48,13 +48,19 @@ a:hover { color: #120c07; }
   [data-hdr] > a:first-child { min-width: 0; }
 
   /* В шапке остаётся единственная ссылка навигации — запись, залитая золотом,
-     чтобы читалась как призыв, а не как пункт меню. */
+     чтобы читалась как призыв, а не как пункт меню. Кегль и поля меньше, чем
+     на ПК: залитая плашка в прежнем размере вставала вровень с логотипом и
+     перетягивала шапку на себя. */
   [data-nav] > a:not([data-nav-cta]) { display: none !important; }
   [data-nav-cta] {
+    position: relative;
     background: #d9c49a !important; color: #120c07 !important; border-color: #d9c49a !important;
-    padding: 13px 20px !important; font-size: 12.5px !important;
+    padding: 10px 16px !important; font-size: 11.5px !important;
     -webkit-tap-highlight-color: transparent;
   }
+  /* Кнопка уменьшилась до 36px — меньше пальца. Площадь нажатия возвращается
+     невидимой накладкой: на вид плашка компактная, промахнуться по ней нельзя. */
+  [data-nav-cta]::after { content: ''; position: absolute; inset: -6px -5px; }
 
   /* Хиро. На 12 колонках фотографии вырождаются в полосы по 41–66px, поэтому
      коллаж перестраивается в два столбца: слева две карточки и одна широкая,
