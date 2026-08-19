@@ -298,14 +298,27 @@ a:hover { color: #120c07; }
   [data-cos-grid][data-deck] > [data-cos-card] {
     position: absolute !important; top: 0 !important; left: 0 !important;
     width: 100% !important; flex: none !important;
-    will-change: transform, opacity; backface-visibility: hidden;
+    backface-visibility: hidden;
     -webkit-user-select: none; user-select: none;
   }
+  /* will-change держит карточку отдельным слоем в памяти видеокарты. Карточка
+     тут почти во весь экран, и четыре таких слоя навсегда — это заметная плата
+     на среднем телефоне: прокрутка мимо секции начинает подрагивать. Слои
+     поднимаются на время движения (атрибут ставит скрипт при касании, снимает
+     через секунду после остановки) и всё остальное время не занимают ничего. */
+  [data-cos-grid][data-deck][data-busy] > [data-cos-card] { will-change: transform, opacity; }
+  /* Плёнке слой нужен по той же причине: пока карточку тянут, переходы у стопки
+     выключены, и прозрачность меняется каждый кадр вручную. Без слоя это
+     перерисовка тёмного прямоугольника во всю карточку — по одной на каждую
+     видимую, шестьдесят раз в секунду. */
+  [data-cos-grid][data-deck][data-busy] [data-cos-veil] { will-change: opacity; }
+  /* Четвёртой и дальше не видно: пусть браузер их и не рисует. */
+  [data-cos-grid][data-deck] > [data-cos-card][data-deep] { visibility: hidden; }
   /* Бумага на бумаге: без затемнения нижние карточки сливаются с верхней —
      обе кремовые, и глубину держала бы одна тень. Плёнку кладёт скрипт. */
   [data-cos-veil] {
     position: absolute; inset: 0; background: #120c07; opacity: 0;
-    pointer-events: none; will-change: opacity;
+    pointer-events: none;
   }
   /* Подъём по наведению рантайм вешает с !important, а тачскрин выдаёт :hover по
      касанию: посреди свайпа карточка дёргалась бы вверх и меняла тень. Тень
@@ -853,7 +866,7 @@ class Component extends DCLogic {
       const PERSP = 1200;              // столько же, сколько perspective у колоды
       const DEPTH = 54;                // на сколько каждая следующая карточка уходит вглубь
       const PEEK = 15;                 // и на сколько выглядывает снизу
-      const LEAN = 1.2;                // завал стопки от зрителя, градусы на шаг
+      const LEAN = 1;                  // завал стопки от зрителя, градусы на шаг
       const VEIL = 0.13;               // затемнение на шаг вглубь
       const FAN = [0, 1.5, -1.3, 1];   // развал стопки — как у колоды карт
       const LIFT = 38;                 // на сколько взятая карточка выходит к глазу
@@ -887,6 +900,16 @@ class Component extends DCLogic {
       const move = (el, value) => el.style.setProperty('transform', value, 'important');
       const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+      /* Слои поднимаются перед движением и опускаются через секунду после него.
+         Держать их постоянно нельзя: карточка почти во весь экран, и четыре
+         таких слоя мешают обычной прокрутке мимо секции. */
+      let busyT = 0;
+      const busy = () => {
+        deckEl.setAttribute('data-busy', '1');
+        window.clearTimeout(busyT);
+        busyT = window.setTimeout(() => deckEl.removeAttribute('data-busy'), 1100);
+      };
+
       /* Место в стопке. Глубина задаётся сдвигом по Z, а не масштабом: с
          перспективой карточка не просто мельчает, у неё сходятся края. Сжатие
          от этого сдвига известно, и половина съеденной высоты возвращается
@@ -911,8 +934,8 @@ class Component extends DCLogic {
       const grabT = (dx, dy, lever) => {
         const pull = Math.min(1, Math.abs(dx) / 90);
         return 'translate3d(' + dx.toFixed(1) + 'px, ' + (dy * 0.24).toFixed(1) + 'px, ' + (LIFT * pull).toFixed(1) + 'px)'
-          + ' rotateY(' + clamp(dx * 0.03, -10, 10).toFixed(2) + 'deg)'
-          + ' rotateX(' + clamp(-dy * 0.03, -7, 7).toFixed(2) + 'deg)'
+          + ' rotateY(' + clamp(dx * 0.03, -7, 7).toFixed(2) + 'deg)'
+          + ' rotateX(' + clamp(-dy * 0.03, -4.5, 4.5).toFixed(2) + 'deg)'
           + ' rotate(' + clamp(dx * 0.11 * lever, -16, 16).toFixed(2) + 'deg)';
       };
 
@@ -924,10 +947,18 @@ class Component extends DCLogic {
           if (card.style.zIndex !== z) card.style.zIndex = z;
           if (card.style.pointerEvents !== pe) card.style.pointerEvents = pe;
           if (card === held || flying.has(card)) return;
-          const s = slot(dealt ? i - a : 0);
-          const real = slot(i - a);
+          const pos = i - a;
+          // Глубокие карточки прозрачны насквозь: их не рисуем и не двигаем —
+          // положение у них и так верное, оно понадобится, когда стопка сдвинется.
+          const deep = pos >= 2.995;
+          if (deep !== card.hasAttribute('data-deep')) {
+            if (deep) card.setAttribute('data-deep', '1');
+            else card.removeAttribute('data-deep');
+          }
+          if (deep) { move(card, slot(pos).t); card.style.opacity = '0'; return; }
+          const s = slot(dealt ? pos : 0);
           move(card, s.t);
-          card.style.opacity = String(real.o);
+          card.style.opacity = String(slot(pos).o);
           const veil = veils.get(card);
           if (veil) veil.style.opacity = String(s.v);
         });
@@ -959,6 +990,8 @@ class Component extends DCLogic {
         const card = order[0];
         if (flying.has(card)) return;
         const move0 = g || {};
+        busy();
+        card.removeAttribute('data-deep');
         touched = true;
         if (hintEl) hintEl.style.opacity = '0';
         flying.add(card);
@@ -1011,10 +1044,22 @@ class Component extends DCLogic {
         paint(0);
       };
 
+      /* Слушатели висят только пока тянут карточку. Постоянный pointermove на
+         window срабатывает и во время обычной прокрутки — на каждое движение
+         пальца по странице, мимо секции с косметикой в том числе. */
+      const track = (on) => {
+        const fn = on ? window.addEventListener : window.removeEventListener;
+        fn.call(window, 'pointermove', onMove, { passive: true });
+        fn.call(window, 'pointerup', release, { passive: true });
+        fn.call(window, 'pointercancel', release, { passive: true });
+      };
+
       const onDown = (e) => {
         if (!live || drag || flying.has(order[0])) return;
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         if (!order[0].contains(e.target)) return;
+        busy();
+        track(true);
         held = order[0];
         const r = held.getBoundingClientRect();
         // Точка захвата: за верх — карточку ведёт сильнее и вперёд, за низ —
@@ -1035,6 +1080,11 @@ class Component extends DCLogic {
       const applyDrag = () => {
         rafDrag = 0;
         if (!drag || !held) return;
+        // Палец стоит — кадр не трогаем вовсе.
+        if (drag.dx === drag.px && drag.dy === drag.py) return;
+        drag.px = drag.dx;
+        drag.py = drag.dy;
+        busy();
         move(held, grabT(drag.dx, drag.dy, drag.lever));
         const t = Math.min(1, Math.abs(drag.dx) / throwPoint());
         paint(1 - (1 - t) * (1 - t));   // следующая карточка выходит вперёд с ускорением
@@ -1059,7 +1109,6 @@ class Component extends DCLogic {
         drag.dx = dx;
         drag.dy = dy;
         if (!rafDrag) rafDrag = requestAnimationFrame(applyDrag);
-        if (e.cancelable && e.pointerType === 'mouse') e.preventDefault();
       };
 
       const release = () => {
@@ -1071,6 +1120,8 @@ class Component extends DCLogic {
           try { card.releasePointerCapture(drag.id); } catch (err) {}
         }
         if (rafDrag) { cancelAnimationFrame(rafDrag); rafDrag = 0; }
+        track(false);
+        busy();
         drag = null;
         held = null;
         deckCards.forEach((c) => { c.style.transition = flow(); });
@@ -1088,7 +1139,19 @@ class Component extends DCLogic {
       /* Раздача: при появлении секции стопка разъезжается веером по одной
          карточке, а следом верхняя коротко уходит вбок и возвращается — видно,
          что колоду листают. */
+      /* Раздача веером и прокрутка страницы — две большие анимации сразу, и
+         запускать их вместе нет смысла: секция как раз выезжает на экран. Ждём
+         остановки пальца, а уже потом раздаём. */
+      const whenCalm = (fn) => {
+        let t = 0;
+        const done = () => { window.removeEventListener('scroll', wake); fn(); };
+        const wake = () => { window.clearTimeout(t); t = window.setTimeout(done, 200); };
+        window.addEventListener('scroll', wake, { passive: true });
+        wake();
+      };
+
       const deal = () => {
+        busy();
         deckCards.forEach((c, i) => { c.style.transitionDelay = (i * 80) + 'ms'; });
         paint(0);
         window.setTimeout(() => {
@@ -1099,6 +1162,7 @@ class Component extends DCLogic {
 
       const nudge = () => {
         if (touched || drag || !live || calm.matches) return;
+        busy();
         const card = order[0];
         card.style.transition = 'transform 0.6s cubic-bezier(0.3, 0.7, 0.3, 1)';
         move(card, grabT(-34, 0, 0.9));
@@ -1149,9 +1213,6 @@ class Component extends DCLogic {
         buildNav();
         measure();
         deckEl.addEventListener('pointerdown', onDown);
-        window.addEventListener('pointermove', onMove, { passive: false });
-        window.addEventListener('pointerup', release);
-        window.addEventListener('pointercancel', release);
       };
 
       const disable = () => {
@@ -1161,11 +1222,12 @@ class Component extends DCLogic {
         held = null;
         flying.clear();
         if (rafDrag) { cancelAnimationFrame(rafDrag); rafDrag = 0; }
+        window.clearTimeout(busyT);
+        track(false);
         deckEl.removeEventListener('pointerdown', onDown);
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', release);
-        window.removeEventListener('pointercancel', release);
         deckEl.removeAttribute('data-deck');
+        deckEl.removeAttribute('data-busy');
+        deckCards.forEach((c) => c.removeAttribute('data-deep'));
         deckEl.style.height = '';
         veils.forEach((veil) => { if (veil.parentNode) veil.parentNode.removeChild(veil); });
         veils.clear();
@@ -1205,7 +1267,7 @@ class Component extends DCLogic {
             if (!e.isIntersecting || dealt) return;
             io3.disconnect();
             dealt = true;
-            if (live) window.setTimeout(deal, 260);
+            if (live) whenCalm(deal);
           });
         }, { threshold: 0.25 });
         io3.observe(deckEl);
