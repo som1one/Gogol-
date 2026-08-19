@@ -174,17 +174,18 @@ a:hover { color: #120c07; }
   [data-atmo-grid] h2 { font-size: clamp(22px, 6.4vw, 30px) !important; margin-bottom: 14px !important; }
   [data-atmo-grid] > div > p:last-child { font-size: 15px !important; line-height: 1.6 !important; }
 
-  /* Пластинка в 620px накрывала на телефоне половину экрана. Просто уменьшить её
-     в прежнем углу мало: фотография теперь во всю ширину и спрятала бы пластинку
-     за собой. Поэтому на мобилке это небольшой значок поверх угла кадра — как
-     круглые печати в остальных секциях. Вращение от прокрутки остаётся. */
+  /* Пластинка в 620px накрывала на телефоне половину экрана, а уместившийся в
+     углу значок читался уже не как пластинка. Здесь она вынесена за угол секции
+     и подрезана её краем — тот же приём, что на ПК, только в масштабе телефона:
+     диск крупный, но на фотографию заходит лишь верхним правым углом, а этикетка
+     целиком остаётся на экране. Вращение от прокрутки остаётся. */
   [data-vinyl] {
-    width: 150px !important; height: 150px !important; top: 12px !important; right: 12px !important;
-    z-index: 2 !important; box-shadow: 0 12px 26px rgba(0,0,0,0.45) !important;
+    width: 210px !important; height: 210px !important; top: -24px !important; right: -30px !important;
+    z-index: 2 !important; box-shadow: 0 18px 38px rgba(0,0,0,0.5) !important;
   }
-  [data-vinyl] > div { width: 78px !important; height: 78px !important; }
-  [data-vinyl] > div span { font-size: 12px !important; }
-  [data-vinyl] > div span span { font-size: 9px !important; }
+  [data-vinyl] > div { width: 108px !important; height: 108px !important; }
+  [data-vinyl] > div span { font-size: 16px !important; }
+  [data-vinyl] > div span span { font-size: 12px !important; }
 
   /* О нас. Здесь ловушка перевёрнута: минимум держала колонка фотографии
      (minmax(260px…)), а текстовая (7fr) схлопывалась до столбика в одно слово.
@@ -272,6 +273,61 @@ a:hover { color: #120c07; }
   [data-cos-card] > div > div:not(:first-of-type) { padding: 7px 0 !important; }
   [data-cos-card] > div > div:not(:first-of-type) > p:first-child { font-size: 13px !important; }
   [data-cos-card] > div > div:not(:first-of-type) > p:last-child { font-size: 11.5px !important; line-height: 1.35 !important; }
+
+  /* Со скриптом лента превращается в колоду: карточки ложатся стопкой, верхнюю
+     тянут пальцем вбок. Атрибут data-deck ставит скрипт — без него (и без JS)
+     на месте колоды остаётся та же лента с прокруткой. */
+  [data-cos-grid][data-deck] {
+    display: block !important; position: relative !important;
+    margin: 0 !important; padding: 0 !important; overflow: visible !important;
+    scroll-snap-type: none !important;
+    /* Перспектива — то, чем колода отличается от стопки прямоугольников: карточки
+       уходят вглубь по-настоящему, а не просто мельчают. Точка схода поднята
+       выше середины, иначе стопка смотрится сверху вниз, как стол. Значение
+       должно совпадать с PERSP в скрипте — по нему считается сжатие. */
+    perspective: 1200px; perspective-origin: 50% 40%;
+    /* pan-y: вертикаль остаётся прокрутке страницы, горизонталь забирает карточка */
+    touch-action: pan-y; -webkit-tap-highlight-color: transparent;
+  }
+  [data-cos-grid][data-deck] > [data-cos-card] {
+    position: absolute !important; top: 0 !important; left: 0 !important;
+    width: 100% !important; flex: none !important;
+    will-change: transform, opacity; backface-visibility: hidden;
+    -webkit-user-select: none; user-select: none;
+  }
+  /* Бумага на бумаге: без затемнения нижние карточки сливаются с верхней —
+     обе кремовые, и глубину держала бы одна тень. Плёнку кладёт скрипт. */
+  [data-cos-veil] {
+    position: absolute; inset: 0; background: #120c07; opacity: 0;
+    pointer-events: none; will-change: opacity;
+  }
+  /* Подъём по наведению рантайм вешает с !important, а тачскрин выдаёт :hover по
+     касанию: посреди свайпа карточка дёргалась бы вверх и меняла тень. Тень
+     гасится здесь (селектор специфичнее), transform скрипт ставит инлайном
+     с !important — иначе правило :hover его перебьёт. */
+  [data-cos-grid][data-deck] > [data-cos-card]:hover {
+    box-shadow: 8px 8px 0 rgba(18,12,7,0.18) !important;
+  }
+  /* Точки под колодой: какой бренд сверху и сколько их всего. Ставит их скрипт,
+     поэтому в разметке их нет. */
+  [data-cos-nav] {
+    display: flex; align-items: center; justify-content: center; gap: 11px; margin-top: 24px;
+  }
+  [data-cos-nav] button {
+    width: 9px; height: 9px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid rgba(18,12,7,0.4); background: transparent;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+  [data-cos-nav] button[aria-current="true"] {
+    background: #a87b24; border-color: #a87b24; transform: scale(1.4);
+  }
+  /* Подсказка уходит после первого свайпа, но место за собой оставляет —
+     иначе точки прыгали бы вверх посреди листания. */
+  [data-cos-hint] {
+    margin: 12px 0 0; text-align: center; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #6b5946; transition: opacity 0.5s ease;
+  }
 
   /* Подвал. Колонка текста уже полей секции: цитата и строка адреса перестают
      доходить до самых краёв, набор собирается плотнее вокруг оси. */
@@ -776,6 +832,382 @@ class Component extends DCLogic {
       window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(spin); }, { passive: true });
       spin();
     }
+    /* Косметика на телефоне. В разметке это лента с горизонтальной прокруткой —
+       она работает и без скриптов, поэтому колода живёт здесь. Карточки лежат
+       стопкой в перспективе: верхняя берётся пальцем, подаётся к глазу и
+       поворачивается вокруг точки захвата — взяли за верх, повело сильнее, взяли
+       за низ, повело в другую сторону. На броске карточка уходит по инерции: чем
+       резче смахнули, тем быстрее и круче она улетает. Улетевшая возвращается
+       в самый низ, так что листать можно по кругу и ни один бренд не теряется. */
+    const deckEl = document.querySelector('[data-cos-grid]');
+    const deckCards = deckEl ? Array.from(deckEl.querySelectorAll('[data-cos-card]')) : [];
+    if (deckEl && deckCards.length > 1 && window.matchMedia && window.PointerEvent) {
+      const mqDeck = window.matchMedia('(max-width: 880px)');
+      const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const PERSP = 1200;              // столько же, сколько perspective у колоды
+      const DEPTH = 54;                // на сколько каждая следующая карточка уходит вглубь
+      const PEEK = 15;                 // и на сколько выглядывает снизу
+      const LEAN = 1.2;                // завал стопки от зрителя, градусы на шаг
+      const VEIL = 0.13;               // затемнение на шаг вглубь
+      const FAN = [0, 1.5, -1.3, 1];   // развал стопки — как у колоды карт
+      const LIFT = 38;                 // на сколько взятая карточка выходит к глазу
+      /* Возврат — не «доехал и встал», а короткий перелёт с затуханием: так
+         карточка ведёт себя как вещь, а не как слайд. linear() держат не все
+         браузеры, поэтому рядом лежит запасная кривая с одним перелётом. */
+      const SPRING = (window.CSS && CSS.supports && CSS.supports('transition-timing-function', 'linear(0, 1)'))
+        ? 'linear(0, 0.0715, 0.2367, 0.4363, 0.6301, 0.7949, 0.9207, 1.0065, 1.057, 1.0798, 1.0829, 1.0738, 1.0587, 1.0419, 1.0263, 1.0135, 1.004, 0.9978, 0.9944, 0.9931, 0.9932, 0.9942, 0.9955, 0.9969, 1)'
+        : 'cubic-bezier(0.2, 1.2, 0.35, 1)';
+      const flow = () => (calm.matches
+        ? 'transform 0.18s linear, opacity 0.18s linear'
+        : 'transform 0.62s ' + SPRING + ', opacity 0.45s ease');
+      const base = deckCards.map((c) => c.getAttribute('style') || '');
+      const veils = new Map();
+      const flying = new Set();
+      let order = deckCards.slice();
+      let cardH = 0;
+      let held = null;
+      let drag = null;
+      let rafDrag = 0;
+      let nav = null;
+      let dots = [];
+      let hintEl = null;
+      let live = false;
+      let dealt = false;
+      let touched = false;
+
+      /* Подъём по наведению рантайм вешает с !important, а тачскрин выдаёт
+         :hover по касанию — без !important карточку выбивало бы из-под пальца
+         на середине свайпа. */
+      const move = (el, value) => el.style.setProperty('transform', value, 'important');
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+      /* Место в стопке. Глубина задаётся сдвигом по Z, а не масштабом: с
+         перспективой карточка не просто мельчает, у неё сходятся края. Сжатие
+         от этого сдвига известно, и половина съеденной высоты возвращается
+         сдвигом вниз — иначе нижние края расходились бы не на PEEK. */
+      const slot = (pos) => {
+        const p = Math.max(0, pos);
+        const i = Math.floor(p);
+        const a = FAN[Math.min(i, FAN.length - 1)];
+        const b = FAN[Math.min(i + 1, FAN.length - 1)];
+        const tz = DEPTH * p;
+        const sc = PERSP / (PERSP + tz);
+        const ty = cardH * (1 - sc) / 2 + PEEK * p;
+        return {
+          t: 'translate3d(0, ' + ty.toFixed(1) + 'px, ' + (-tz).toFixed(1) + 'px) rotateX(' + (LEAN * p).toFixed(2) + 'deg) rotate(' + (a + (b - a) * (p - i)).toFixed(2) + 'deg)',
+          o: clamp(3 - p, 0, 1),   // с четвёртой карточки стопки уже не видно
+          v: Math.min(0.4, VEIL * p)
+        };
+      };
+
+      /* Карточка в руке: тянется за пальцем, наклоняется вокруг точки захвата
+         (lever) и выходит к глазу тем сильнее, чем дальше её увели. */
+      const grabT = (dx, dy, lever) => {
+        const pull = Math.min(1, Math.abs(dx) / 90);
+        return 'translate3d(' + dx.toFixed(1) + 'px, ' + (dy * 0.24).toFixed(1) + 'px, ' + (LIFT * pull).toFixed(1) + 'px)'
+          + ' rotateY(' + clamp(dx * 0.03, -10, 10).toFixed(2) + 'deg)'
+          + ' rotateX(' + clamp(-dy * 0.03, -7, 7).toFixed(2) + 'deg)'
+          + ' rotate(' + clamp(dx * 0.11 * lever, -16, 16).toFixed(2) + 'deg)';
+      };
+
+      const paint = (advance) => {
+        const a = advance || 0;
+        order.forEach((card, i) => {
+          const z = String(order.length - i);
+          const pe = i === 0 ? 'auto' : 'none';
+          if (card.style.zIndex !== z) card.style.zIndex = z;
+          if (card.style.pointerEvents !== pe) card.style.pointerEvents = pe;
+          if (card === held || flying.has(card)) return;
+          const s = slot(dealt ? i - a : 0);
+          const real = slot(i - a);
+          move(card, s.t);
+          card.style.opacity = String(real.o);
+          const veil = veils.get(card);
+          if (veil) veil.style.opacity = String(s.v);
+        });
+        dots.forEach((d, i) => d.setAttribute('aria-current', deckCards[i] === order[0] ? 'true' : 'false'));
+      };
+
+      /* Высоту меряем в ленточной раскладке: там карточки растянуты по самой
+         длинной, а в колоде они уже вынуты из потока и мерить нечего. Всё за
+         один заход, без переходов — кадр наружу не выходит, мигания нет. */
+      const measure = () => {
+        deckCards.forEach((c) => { c.style.transition = 'none'; });
+        deckEl.removeAttribute('data-deck');
+        deckCards.forEach((c) => { c.style.height = ''; c.style.removeProperty('transform'); });
+        cardH = 0;
+        deckCards.forEach((c) => { cardH = Math.max(cardH, c.offsetHeight); });
+        deckEl.setAttribute('data-deck', '');
+        deckCards.forEach((c) => { c.style.height = cardH + 'px'; });
+        deckEl.style.height = (cardH + PEEK * 2 + 12) + 'px';
+        paint(0);
+        void deckEl.offsetHeight;
+        deckCards.forEach((c) => { c.style.transition = flow(); });
+      };
+
+      const throwPoint = () => Math.max(64, deckEl.offsetWidth * 0.28);
+
+      /* Карточка улетает по инерции броска, а стопка подтягивается сразу же, не
+         дожидаясь конца полёта: так свайпы можно делать один за другим. */
+      const throwOut = (dir, g) => {
+        const card = order[0];
+        if (flying.has(card)) return;
+        const move0 = g || {};
+        touched = true;
+        if (hintEl) hintEl.style.opacity = '0';
+        flying.add(card);
+        held = null;
+        card.style.zIndex = String(order.length + 2);
+        card.style.pointerEvents = 'none';
+        const width = deckEl.offsetWidth + 300;
+        const speed = clamp(Math.abs(move0.vx || 0), 0.5, 3);
+        // Дальше по экрану осталось меньше — и лететь меньше: время считается от
+        // остатка пути и скорости броска, а не берётся одно на все случаи.
+        const dur = calm.matches ? 0.2 : clamp((width - Math.abs(move0.dx || 0)) / (speed * 1000), 0.26, 0.6);
+        // Вертикаль броска только подсказывает направление: на резком косом
+        // взмахе без ограничения карточка уходила бы почти вертикально вверх.
+        const ty = (move0.dy || 0) * 0.24 + clamp((move0.vy || 0) * dur * 300, -180, 180) + 26;
+        // Закрутка продолжает наклон, который карточка набрала под пальцем:
+        // взяли за низ — она и улетает с обратным разворотом, а не переламывается
+        // на середине. Модуль снизу ограничен, иначе бросок «от центра» выходит
+        // плоским, без вращения вовсе.
+        const lever = move0.lever === undefined ? 1 : move0.lever;
+        const spin = dir * Math.min(34, 15 + speed * 8) * Math.max(0.35, Math.abs(lever)) * (lever < 0 ? -1 : 1);
+        card.style.transition = 'transform ' + dur.toFixed(2) + 's cubic-bezier(0.22, 0.5, 0.36, 1)'
+          + ', opacity ' + (dur * 0.4).toFixed(2) + 's linear ' + (dur * 0.55).toFixed(2) + 's';
+        move(card, 'translate3d(' + (dir * width).toFixed(0) + 'px, ' + ty.toFixed(0) + 'px, ' + LIFT + 'px)'
+          + ' rotateY(' + (dir * -12) + 'deg) rotate(' + spin.toFixed(1) + 'deg)');
+        card.style.opacity = '0';
+        // Улетевшая всегда уходит в самый низ, а выбранная точкой поднимается наверх.
+        const rest = order.slice(1);
+        const k = move0.pick ? Math.max(0, rest.indexOf(move0.pick)) : 0;
+        order = rest.slice(k).concat(rest.slice(0, k), [card]);
+        paint(0);
+        window.setTimeout(() => settle(card), dur * 1000 + 40);
+      };
+
+      /* Возврат в стопку: прыжок на своё место делается прозрачной карточкой и
+         без переходов, иначе было бы видно, как она едет обратно через экран. */
+      const settle = (card) => {
+        flying.delete(card);
+        if (!live) return;
+        const i = order.indexOf(card);
+        const s = slot(i);
+        const veil = veils.get(card);
+        card.style.transition = 'none';
+        card.style.opacity = '0';
+        card.style.transformOrigin = '';
+        move(card, s.t);
+        card.style.zIndex = String(order.length - i);
+        if (veil) veil.style.opacity = String(s.v);
+        void deckEl.offsetHeight;
+        card.style.transition = flow();
+        paint(0);
+      };
+
+      const onDown = (e) => {
+        if (!live || drag || flying.has(order[0])) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        if (!order[0].contains(e.target)) return;
+        held = order[0];
+        const r = held.getBoundingClientRect();
+        // Точка захвата: за верх — карточку ведёт сильнее и вперёд, за низ —
+        // в обратную сторону, как настоящий лист бумаги под пальцем.
+        const grab = clamp((e.clientY - r.top) / Math.max(1, r.height), 0, 1);
+        drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0, vx: 0, vy: 0, t: Date.now(), axis: '', lever: 0.45 + (0.5 - grab) * 1.3 };
+        // Ось поворота — под пальцем, но переставлять её на лету нельзя: карточку
+        // в движении дёрнет. Пока она возвращается, остаётся прежняя.
+        if (!held.getAnimations || !held.getAnimations().some((a) => a.playState === 'running')) {
+          held.style.transformOrigin = '50% ' + (grab * 100).toFixed(0) + '%';
+        }
+        order.forEach((c) => { c.style.transition = 'none'; });
+        if (held.setPointerCapture) { try { held.setPointerCapture(e.pointerId); } catch (err) {} }
+      };
+
+      /* Отрисовка привязана к кадру: pointermove на телефоне приходит чаще, и
+         без этого одна и та же картинка считалась бы по два-три раза за кадр. */
+      const applyDrag = () => {
+        rafDrag = 0;
+        if (!drag || !held) return;
+        move(held, grabT(drag.dx, drag.dy, drag.lever));
+        const t = Math.min(1, Math.abs(drag.dx) / throwPoint());
+        paint(1 - (1 - t) * (1 - t));   // следующая карточка выходит вперёд с ускорением
+      };
+
+      const onMove = (e) => {
+        // held мог обнулиться вторым пальцем — тапом по точке посреди свайпа.
+        if (!drag || !held || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x;
+        const dy = e.clientY - drag.y;
+        if (!drag.axis) {
+          if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+          // Вертикаль отдаём странице: палец пришёл прокручивать, а не листать.
+          drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+          if (drag.axis === 'y') { release(); return; }
+        }
+        const now = Date.now();
+        const dt = Math.max(1, now - drag.t);
+        drag.vx = (dx - drag.dx) / dt;
+        drag.vy = (dy - drag.dy) / dt;
+        drag.t = now;
+        drag.dx = dx;
+        drag.dy = dy;
+        if (!rafDrag) rafDrag = requestAnimationFrame(applyDrag);
+        if (e.cancelable && e.pointerType === 'mouse') e.preventDefault();
+      };
+
+      const release = () => {
+        if (!drag) return;
+        const card = held;
+        if (!card) { drag = null; return; }
+        const g = { dx: drag.dx, dy: drag.dy, vx: drag.vx, vy: drag.vy, lever: drag.lever };
+        if (card.hasPointerCapture && card.hasPointerCapture(drag.id)) {
+          try { card.releasePointerCapture(drag.id); } catch (err) {}
+        }
+        if (rafDrag) { cancelAnimationFrame(rafDrag); rafDrag = 0; }
+        drag = null;
+        held = null;
+        deckCards.forEach((c) => { c.style.transition = flow(); });
+        // Либо увели дальше порога, либо коротко, но резко смахнули.
+        if (Math.abs(g.dx) > throwPoint() || (Math.abs(g.vx) > 0.55 && Math.abs(g.dx) > 24)) {
+          throwOut(g.dx < 0 ? -1 : 1, g);
+        } else {
+          paint(0);
+          // Ось поворота вернётся, когда карточка встанет ровно: в этот момент
+          // у неё нулевой поворот, и подмена ничего не сдвигает.
+          window.setTimeout(() => { if (card !== held && !flying.has(card)) card.style.transformOrigin = ''; }, 660);
+        }
+      };
+
+      /* Раздача: при появлении секции стопка разъезжается веером по одной
+         карточке, а следом верхняя коротко уходит вбок и возвращается — видно,
+         что колоду листают. */
+      const deal = () => {
+        deckCards.forEach((c, i) => { c.style.transitionDelay = (i * 80) + 'ms'; });
+        paint(0);
+        window.setTimeout(() => {
+          deckCards.forEach((c) => { c.style.transitionDelay = ''; });
+          nudge();
+        }, 80 * deckCards.length + 380);
+      };
+
+      const nudge = () => {
+        if (touched || drag || !live || calm.matches) return;
+        const card = order[0];
+        card.style.transition = 'transform 0.6s cubic-bezier(0.3, 0.7, 0.3, 1)';
+        move(card, grabT(-34, 0, 0.9));
+        paint(0.3);
+        window.setTimeout(() => {
+          if (drag || !live || touched) return;
+          card.style.transition = 'transform 0.8s ' + SPRING;
+          paint(0);
+          window.setTimeout(() => { if (live) deckCards.forEach((c) => { c.style.transition = flow(); }); }, 820);
+        }, 640);
+      };
+
+      const buildNav = () => {
+        if (nav) return;
+        deckCards.forEach((card) => {
+          const veil = document.createElement('div');
+          veil.setAttribute('data-cos-veil', '1');
+          card.appendChild(veil);
+          veils.set(card, veil);
+        });
+        nav = document.createElement('div');
+        nav.setAttribute('data-cos-nav', '1');
+        dots = deckCards.map((card, i) => {
+          const dot = document.createElement('button');
+          const title = card.querySelector('p');
+          dot.type = 'button';
+          dot.setAttribute('aria-label', 'Показать ' + ((title && title.textContent) || ('бренд ' + (i + 1))));
+          dot.addEventListener('click', () => {
+            touched = true;
+            if (hintEl) hintEl.style.opacity = '0';
+            if (drag || order[0] === card || flying.has(card) || flying.has(order[0])) return;
+            deckCards.forEach((c) => { c.style.transition = flow(); });
+            throwOut(-1, { vx: 1.1, pick: card });
+          });
+          nav.appendChild(dot);
+          return dot;
+        });
+        hintEl = document.createElement('p');
+        hintEl.setAttribute('data-cos-hint', '1');
+        hintEl.textContent = '← листайте →';
+        deckEl.insertAdjacentElement('afterend', nav);
+        nav.insertAdjacentElement('afterend', hintEl);
+      };
+
+      const enable = () => {
+        if (live) return;
+        live = true;
+        buildNav();
+        measure();
+        deckEl.addEventListener('pointerdown', onDown);
+        window.addEventListener('pointermove', onMove, { passive: false });
+        window.addEventListener('pointerup', release);
+        window.addEventListener('pointercancel', release);
+      };
+
+      const disable = () => {
+        if (!live) return;
+        live = false;
+        drag = null;
+        held = null;
+        flying.clear();
+        if (rafDrag) { cancelAnimationFrame(rafDrag); rafDrag = 0; }
+        deckEl.removeEventListener('pointerdown', onDown);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', release);
+        window.removeEventListener('pointercancel', release);
+        deckEl.removeAttribute('data-deck');
+        deckEl.style.height = '';
+        veils.forEach((veil) => { if (veil.parentNode) veil.parentNode.removeChild(veil); });
+        veils.clear();
+        // Порядок в разметке колода не трогает, поэтому лента собирается обратно
+        // простым возвратом исходных стилей.
+        deckCards.forEach((c, i) => c.setAttribute('style', base[i]));
+        order = deckCards.slice();
+        if (nav && nav.parentNode) nav.parentNode.removeChild(nav);
+        if (hintEl && hintEl.parentNode) hintEl.parentNode.removeChild(hintEl);
+        nav = null;
+        dots = [];
+        hintEl = null;
+      };
+
+      const sync = () => { if (mqDeck.matches) enable(); else disable(); };
+      if (mqDeck.addEventListener) mqDeck.addEventListener('change', sync);
+      else if (mqDeck.addListener) mqDeck.addListener(sync);
+      sync();
+
+      // Ширина меняется — меняется и высота самой длинной карточки. Высоту окна
+      // (адресная строка телефона) при этом пересчитывать незачем. Здесь же
+      // повторный sync: событие change у matchMedia приходит не в каждом
+      // браузере, а колода за границей 880px должна разбираться наверняка.
+      let deckW = window.innerWidth;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === deckW) return;
+        deckW = window.innerWidth;
+        sync();
+        if (live) measure();
+      });
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { if (live) measure(); });
+      }
+      if ('IntersectionObserver' in window) {
+        const io3 = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting || dealt) return;
+            io3.disconnect();
+            dealt = true;
+            if (live) window.setTimeout(deal, 260);
+          });
+        }, { threshold: 0.25 });
+        io3.observe(deckEl);
+      } else {
+        dealt = true;
+      }
+    }
+
     let target = window.scrollY;
     let current = target;
     let raf2 = 0;
